@@ -4,7 +4,7 @@ RUN pip install uv --quiet
 
 WORKDIR /app
 
-COPY pyproject.toml README.md ./
+COPY pyproject.toml README.md uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
 COPY src/ ./src/
