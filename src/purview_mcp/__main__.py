@@ -43,7 +43,9 @@ def run() -> None:
 
     if settings.entra_audience and settings.azure_tenant_id:
         log.info("purview_mcp.auth.enabled", audience=settings.entra_audience)
-        serve: object = EntraIDAuthMiddleware(asgi_app, settings.azure_tenant_id, settings.entra_audience)
+        serve: object = EntraIDAuthMiddleware(
+            asgi_app, settings.azure_tenant_id, settings.entra_audience
+        )
     else:
         log.warning(
             "purview_mcp.auth.disabled",

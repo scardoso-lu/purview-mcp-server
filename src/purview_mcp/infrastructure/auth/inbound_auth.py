@@ -37,14 +37,14 @@ class EntraIDAuthMiddleware:
         raw_auth = headers.get(b"authorization", b"").decode("latin-1")
 
         if not raw_auth.lower().startswith("bearer "):
-            await _send_401(send, "missing_token", "Authorization header with Bearer token required")
+            await _send_401(
+                send, "missing_token", "Authorization header with Bearer token required"
+            )
             return
 
         token = raw_auth[7:]
         try:
-            signing_key = await asyncio.to_thread(
-                self._jwks_client.get_signing_key_from_jwt, token
-            )
+            signing_key = await asyncio.to_thread(self._jwks_client.get_signing_key_from_jwt, token)
             jwt.decode(
                 token,
                 signing_key.key,
@@ -70,13 +70,15 @@ class EntraIDAuthMiddleware:
 
 async def _send_401(send: Any, error: str, description: str) -> None:
     body = json.dumps({"error": error, "error_description": description}).encode()
-    await send({
-        "type": "http.response.start",
-        "status": 401,
-        "headers": [
-            (b"content-type", b"application/json"),
-            (b"www-authenticate", b"Bearer"),
-            (b"content-length", str(len(body)).encode()),
-        ],
-    })
+    await send(
+        {
+            "type": "http.response.start",
+            "status": 401,
+            "headers": [
+                (b"content-type", b"application/json"),
+                (b"www-authenticate", b"Bearer"),
+                (b"content-length", str(len(body)).encode()),
+            ],
+        }
+    )
     await send({"type": "http.response.body", "body": body, "more_body": False})
