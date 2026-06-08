@@ -9,15 +9,20 @@ def _parse_asset(raw: EntityDetailRaw) -> Asset:
     attrs = raw.get("attributes", {})
     contacts = raw.get("contacts", {})
     owners: list[AssetOwner] = []
-    for contact_type in ("Expert", "Owner"):
-        for contact in contacts.get(contact_type, []):
-            owners.append(
-                AssetOwner(
-                    id=contact.get("id", ""),
-                    display_name=contact.get("info", ""),
-                    contact_type=contact_type,
-                )
+    for contact in contacts.get("Expert") or []:
+        owners.append(
+            AssetOwner(
+                id=contact.get("id", ""),
+                display_name=contact.get("info", ""),
+                contact_type="Expert",
             )
+        )
+    for contact in contacts.get("Owner") or []:
+        owners.append(
+            AssetOwner(
+                id=contact.get("id", ""), display_name=contact.get("info", ""), contact_type="Owner"
+            )
+        )
 
     meanings = attrs.get("meanings", [])
     tags = [meaning.get("displayText", "") for meaning in meanings if meaning.get("displayText")]
