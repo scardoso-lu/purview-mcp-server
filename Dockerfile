@@ -4,7 +4,7 @@ RUN pip install uv --quiet
 
 WORKDIR /app
 
-COPY pyproject.toml README.md ./
+COPY pyproject.toml README.md uv.lock LICENSE ./
 RUN uv sync --frozen --no-dev --no-install-project
 
 COPY src/ ./src/
@@ -20,6 +20,8 @@ COPY src/ ./src/
 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app/src"
+
+EXPOSE 8000
 
 USER nobody
 

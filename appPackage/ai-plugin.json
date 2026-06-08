@@ -1,0 +1,23 @@
+{
+  "$schema": "https://aka.ms/json-schemas/copilot/plugin/v2.4/schema.json",
+  "schema_version": "v2.4",
+  "namespace": "purviewCatalog",
+  "name_for_human": "Microsoft Purview Unified Catalog",
+  "description_for_human": "Search and explore Microsoft Purview governance metadata: assets, lineage, glossary terms, data products, and data quality.",
+  "description_for_model": "Connect to the organization's Microsoft Purview Unified Catalog to discover data assets, trace data lineage, find authoritative sources, look up business glossary definitions, explore data products, and retrieve data quality metrics. Use search_assets to find datasets, get_asset_details for full metadata, get_asset_lineage for upstream/downstream data flow, find_authoritative_source to identify the most trusted dataset for a business concept, get_asset_owner for ownership information, search_glossary_terms for business definitions, search_data_products for data products, and get_data_quality for quality metrics.",
+  "runtimes": [
+    {
+      "type": "RemoteMCPServer",
+      "auth": {
+        "type": "OAuthPluginVault",
+        "reference_id": "<entra-sso-registration-id>"
+      },
+      "spec": {
+        "url": "https://<your-azure-container-url>/mcp"
+      }
+    }
+  ],
+  "capabilities": {
+    "localization": {}
+  }
+}

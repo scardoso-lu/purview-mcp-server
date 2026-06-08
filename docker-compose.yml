@@ -2,7 +2,7 @@ services:
   purview-mcp:
     build: .
     env_file: .env
-    stdin_open: true
-    tty: true
+    ports:
+      - "8000:8000"
     volumes:
       - "${HOME}/.azure:/home/nobody/.azure:ro"

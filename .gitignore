@@ -219,14 +219,14 @@ __marimo__/
 
 # uv
 .venv/
-uv.lock
 
 # Environment
 .env
 .env.local
 
 # IDE
-.vscode/
+.vscode/*
+!.vscode/mcp.json
 .idea/
 
 # Test artifacts

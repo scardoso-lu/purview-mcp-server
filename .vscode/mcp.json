@@ -1,5 +1,5 @@
 {
-  "mcpServers": {
+  "servers": {
     "purview": {
       "type": "http",
       "url": "https://<your-azure-container-url>/mcp"

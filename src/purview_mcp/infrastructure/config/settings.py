@@ -13,7 +13,11 @@ class Settings(BaseSettings):
     azure_tenant_id: str | None = None
     azure_client_id: str | None = None
     azure_client_secret: str | None = None
+    # Inbound auth: Application ID URI of the server app registration, e.g. api://<client-id>
+    entra_audience: str | None = None
     log_level: str = "INFO"
+    host: str = "0.0.0.0"
+    port: int = 8000
     rate_limit_per_minute: int = 60
     otel_enabled: bool = False
     otel_exporter_otlp_endpoint: str | None = None
