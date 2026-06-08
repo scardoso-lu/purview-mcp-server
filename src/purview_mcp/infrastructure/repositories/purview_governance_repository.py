@@ -70,11 +70,7 @@ class PurviewGovernanceRepository:
             limit=limit * _GLOSSARY_FETCH_MULTIPLIER
         )
         query_lower = query.lower()
-        matched = [
-            term
-            for term in raw_terms
-            if _matches_glossary_query(term, query_lower)
-        ]
+        matched = [term for term in raw_terms if _matches_glossary_query(term, query_lower)]
         return [_parse_glossary_term(term) for term in matched[:limit]]
 
     async def search_data_products(

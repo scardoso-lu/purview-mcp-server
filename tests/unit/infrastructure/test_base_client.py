@@ -52,7 +52,9 @@ async def test_500_retries_then_raises(client: BaseClient, mocker: MockerFixture
 
 
 @pytest.mark.asyncio
-async def test_429_retries_then_raises_rate_limit(client: BaseClient, mocker: MockerFixture) -> None:
+async def test_429_retries_then_raises_rate_limit(
+    client: BaseClient, mocker: MockerFixture
+) -> None:
     mocker.patch("asyncio.sleep")
     with respx.mock:
         route = respx.get("https://example.purview.azure.com/rate-limited").mock(
@@ -78,9 +80,7 @@ async def test_transport_error_retries_then_raises(
 
 
 @pytest.mark.asyncio
-async def test_transport_error_succeeds_on_retry(
-    client: BaseClient, mocker: MockerFixture
-) -> None:
+async def test_transport_error_succeeds_on_retry(client: BaseClient, mocker: MockerFixture) -> None:
     mocker.patch("asyncio.sleep")
     responses = [
         httpx.ConnectError("transient"),
@@ -96,9 +96,7 @@ async def test_transport_error_succeeds_on_retry(
 async def test_retry_delays_match_config(client: BaseClient, mocker: MockerFixture) -> None:
     sleep_mock = mocker.patch("asyncio.sleep")
     with respx.mock:
-        respx.get("https://example.purview.azure.com/slow").mock(
-            return_value=httpx.Response(500)
-        )
+        respx.get("https://example.purview.azure.com/slow").mock(return_value=httpx.Response(500))
         with pytest.raises(PurviewAPIError):
             await client.get("/slow")
 

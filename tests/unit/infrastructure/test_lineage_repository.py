@@ -48,8 +48,18 @@ async def test_get_lineage_classifies_upstream_and_downstream(mocker: MockerFixt
     mock_client = mocker.AsyncMock()
     mock_client.get_lineage.return_value = {
         "guidEntityMap": {
-            "src-1": {"guid": "src-1", "displayText": "Source", "typeName": "table", "attributes": {"qualifiedName": "q/src"}},
-            "dst-1": {"guid": "dst-1", "displayText": "Dest", "typeName": "view", "attributes": {"qualifiedName": "q/dst"}},
+            "src-1": {
+                "guid": "src-1",
+                "displayText": "Source",
+                "typeName": "table",
+                "attributes": {"qualifiedName": "q/src"},
+            },
+            "dst-1": {
+                "guid": "dst-1",
+                "displayText": "Dest",
+                "typeName": "view",
+                "attributes": {"qualifiedName": "q/dst"},
+            },
         },
         "relations": [
             {"fromEntityId": "src-1", "toEntityId": "focus-guid", "relationshipType": "DataFlow"},

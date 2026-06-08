@@ -9,6 +9,7 @@ from purview_mcp.infrastructure.repositories.purview_governance_repository impor
 
 # --- Glossary term parsing ---
 
+
 def test_parse_glossary_term_with_attributes_wrapper() -> None:
     raw = {
         "guid": "term-1",
@@ -62,6 +63,7 @@ def test_parse_glossary_term_missing_optional_fields() -> None:
 
 # --- Data product parsing ---
 
+
 def test_parse_data_product_with_owners() -> None:
     raw = {
         "id": "dp-1",
@@ -104,6 +106,7 @@ def test_parse_data_product_null_asset_count_defaults_to_zero() -> None:
 
 
 # --- Repository integration ---
+
 
 @pytest.mark.asyncio
 async def test_search_glossary_terms_filters_by_query(mocker: MockerFixture) -> None:
