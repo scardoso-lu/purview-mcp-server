@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "claude/**"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  lint-typecheck-test:
+    name: Lint, type-check, and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Lint (ruff check)
+        run: uv run ruff check src tests
+
+      - name: Format check (ruff format)
+        run: uv run ruff format --check src tests
+
+      - name: Type check (mypy)
+        run: uv run mypy src
+
+      - name: Unit tests
+        run: uv run pytest tests/unit -v
+
+  docker-build:
+    name: Docker build
+    runs-on: ubuntu-latest
+    needs: lint-typecheck-test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t purview-mcp-server:ci .
+
+      - name: Verify image starts
+        run: |
+          docker run --rm --env PURVIEW_ACCOUNT_NAME=test \
+            purview-mcp-server:ci python -c "from purview_mcp.infrastructure.config.settings import Settings; print('OK')"
