@@ -39,19 +39,20 @@ def run() -> None:
     container = build_container(settings)
     mcp = create_server(container)
 
-    app = mcp.streamable_http_app()
+    asgi_app = mcp.streamable_http_app()
 
     if settings.entra_audience and settings.azure_tenant_id:
         log.info("purview_mcp.auth.enabled", audience=settings.entra_audience)
-        app = EntraIDAuthMiddleware(app, settings.azure_tenant_id, settings.entra_audience)
+        serve: object = EntraIDAuthMiddleware(asgi_app, settings.azure_tenant_id, settings.entra_audience)
     else:
         log.warning(
             "purview_mcp.auth.disabled",
             reason="ENTRA_AUDIENCE or AZURE_TENANT_ID not set — inbound requests are unauthenticated",
         )
+        serve = asgi_app
 
     log.info("purview_mcp.listening", host=settings.host, port=settings.port)
-    uvicorn.run(app, host=settings.host, port=settings.port)
+    uvicorn.run(serve, host=settings.host, port=settings.port)  # type: ignore[arg-type]
 
 
 if __name__ == "__main__":
