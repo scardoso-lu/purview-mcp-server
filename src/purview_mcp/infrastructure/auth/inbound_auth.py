@@ -3,9 +3,8 @@ import json
 from typing import Any
 
 import jwt
-from jwt import PyJWKClient
-
 import structlog
+from jwt import PyJWKClient
 
 logger = structlog.get_logger(__name__)
 
