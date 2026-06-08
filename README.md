@@ -170,30 +170,51 @@ The `.vscode/mcp.json` in this repo is pre-configured. Replace the URL with your
 
 ## Microsoft 365 Copilot Configuration
 
-The `appPackage/` directory contains everything needed to deploy this server as a Microsoft 365 Copilot declarative agent.
+The `appPackage/` directory contains everything needed to deploy this server as a Microsoft 365 Copilot declarative agent. Authentication uses **Microsoft Entra ID via OAuthPluginVault** — M365 Copilot acquires an Entra token on behalf of the signed-in user and sends it as a Bearer token; Azure Container Apps EasyAuth validates it before the request reaches the container.
 
-### Option A — Copilot Studio (no code deploy)
+### Step 1 — Configure Azure Container Apps EasyAuth
 
-1. Open [Copilot Studio](https://copilotstudio.microsoft.com) and create or open a copilot
-2. Go to **Actions** → **Add an action** → **Model Context Protocol**
-3. Enter the server URL: `https://<your-azure-container-url>/mcp`
-4. Save and publish
+1. In the Azure portal, open your Container App → **Authentication** → **Add identity provider**
+2. Select **Microsoft** and create a **new app registration** (the _server_ registration)
+3. Note the **Application (client) ID** and set the **Application ID URI** (e.g. `api://<client-id>`)
+4. Under **Exposed API**, add a scope: `access_as_user` — this is what M365 Copilot will request
+5. Set **Unauthenticated requests** to **HTTP 401** so the container rejects token-less calls
 
-### Option B — Declarative Agent via Teams Toolkit
+EasyAuth will now validate every incoming Bearer token against this app registration before the request reaches the MCP server — no code changes needed in the server.
 
-1. Edit `appPackage/ai-plugin.json` and replace `<your-azure-container-url>` with your deployment URL
+### Step 2 — Register the OAuth connection in Teams Developer Portal
+
+1. Open [Teams Developer Portal](https://dev.teams.microsoft.com) → **Tools** → **OAuth client registration**
+2. Create a new registration:
+   - **Authorization endpoint**: `https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/authorize`
+   - **Token endpoint**: `https://login.microsoftonline.com/<tenant-id>/oauth2/v2.0/token`
+   - **Scope**: `api://<server-app-client-id>/access_as_user`
+   - **Client ID / Secret**: create a second _client_ app registration in Entra ID, grant it the `access_as_user` scope on the server app, and use its credentials here
+3. Save — you will receive an **OAuth registration ID** (a UUID)
+
+### Step 3 — Update ai-plugin.json and deploy
+
+1. Edit `appPackage/ai-plugin.json`:
+   - Replace `<entra-sso-registration-id>` with the OAuth registration ID from Step 2
+   - Replace `<your-azure-container-url>` with your Container App URL
 2. Edit `appPackage/manifest.json` and replace `<replace-with-a-new-guid>` with a new GUID
-3. Add your `color.png` (192×192 px) and `outline.png` (32×32 px, transparent) to `appPackage/`
-4. In VS Code with the [Microsoft 365 Agents Toolkit](https://marketplace.visualstudio.com/items?itemName=TeamsDevApp.ms-teams-vscode-extension) extension, run **Provision** then **Deploy**
+3. Add `color.png` (192×192 px) and `outline.png` (32×32 px, transparent) to `appPackage/`
+4. In VS Code with the [Microsoft 365 Agents Toolkit](https://marketplace.visualstudio.com/items?itemName=TeamsDevApp.ms-teams-vscode-extension), run **Provision** then **Deploy**
 5. The agent becomes available in Microsoft 365 Copilot under your tenant
 
-The key files:
+### Option B — Copilot Studio (no Teams Toolkit)
+
+1. Complete Steps 1–2 above
+2. Open [Copilot Studio](https://copilotstudio.microsoft.com) → **Actions** → **Add an action** → **Model Context Protocol**
+3. Enter the server URL and configure the OAuth connection using the registration ID from Step 2
+
+### Key files
 
 | File | Purpose |
 |------|---------|
 | `appPackage/manifest.json` | Teams app manifest (v1.19) |
 | `appPackage/declarativeAgent.json` | Agent name, instructions, and action bindings |
-| `appPackage/ai-plugin.json` | MCP plugin manifest (schema v2.4, `RemoteMCPServer` runtime) |
+| `appPackage/ai-plugin.json` | MCP plugin manifest (schema v2.4, `RemoteMCPServer` + `OAuthPluginVault`) |
 
 ---
 

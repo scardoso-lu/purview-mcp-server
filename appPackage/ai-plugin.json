@@ -9,7 +9,8 @@
     {
       "type": "RemoteMCPServer",
       "auth": {
-        "type": "none"
+        "type": "OAuthPluginVault",
+        "reference_id": "<entra-sso-registration-id>"
       },
       "spec": {
         "url": "https://<your-azure-container-url>/mcp"
