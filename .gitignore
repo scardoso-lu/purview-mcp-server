@@ -225,7 +225,8 @@ __marimo__/
 .env.local
 
 # IDE
-.vscode/
+.vscode/*
+!.vscode/mcp.json
 .idea/
 
 # Test artifacts

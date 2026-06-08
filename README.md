@@ -21,11 +21,11 @@ Connects AI assistants to your Purview governance data so they can answer questi
 ## Architecture
 
 ```
-Claude / Copilot / Codex
+Claude / Copilot / Codex / Microsoft 365 Copilot
          │
-      MCP Client (stdio)
+      MCP Client (HTTP — streamable-http transport)
          │
-  Purview MCP Server (Python / Onion Architecture)
+  Purview MCP Server on Azure Container Apps (Python / Onion Architecture)
     ├── Presentation Layer  — MCP tools (FastMCP)
     ├── Application Layer   — Use cases
     ├── Domain Layer        — Models, ports
@@ -77,6 +77,8 @@ az login
 uv run python -m purview_mcp
 ```
 
+The server starts on `http://0.0.0.0:8000`. The MCP endpoint is at `/mcp`.
+
 ---
 
 ## Environment Variables
@@ -88,6 +90,8 @@ uv run python -m purview_mcp
 | `AZURE_CLIENT_ID` | No | App registration client ID |
 | `AZURE_CLIENT_SECRET` | No | App registration client secret |
 | `LOG_LEVEL` | No | Logging level: `DEBUG`, `INFO`, `WARNING` (default: `INFO`) |
+| `HOST` | No | Bind address (default: `0.0.0.0`) |
+| `PORT` | No | HTTP port (default: `8000`) |
 | `RATE_LIMIT_PER_MINUTE` | No | API rate limit (default: `60`) |
 | `OTEL_ENABLED` | No | Enable OpenTelemetry tracing (`true`/`false`, default: `false`) |
 
@@ -122,6 +126,12 @@ No secrets are stored in code.
 
 ---
 
+## Client Configuration
+
+The server runs remotely on Azure Container Apps. All clients connect via HTTP to the `/mcp` endpoint.
+
+---
+
 ## Claude Desktop Configuration
 
 Add this to your `claude_desktop_config.json`:
@@ -130,12 +140,8 @@ Add this to your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "purview": {
-      "command": "python",
-      "args": ["-m", "purview_mcp"],
-      "cwd": "/absolute/path/to/purview-mcp-server",
-      "env": {
-        "PURVIEW_ACCOUNT_NAME": "your-account-name"
-      }
+      "type": "http",
+      "url": "https://<your-azure-container-url>/mcp"
     }
   }
 }
@@ -147,22 +153,47 @@ See `claude-desktop-config.example.json` for a complete example.
 
 ## GitHub Copilot / VS Code Configuration
 
-Add to `.vscode/mcp.json`:
+The `.vscode/mcp.json` in this repo is pre-configured. Replace the URL with your deployment:
 
 ```json
 {
   "servers": {
     "purview": {
-      "type": "stdio",
-      "command": "python",
-      "args": ["-m", "purview_mcp"],
-      "env": {
-        "PURVIEW_ACCOUNT_NAME": "your-account-name"
-      }
+      "type": "http",
+      "url": "https://<your-azure-container-url>/mcp"
     }
   }
 }
 ```
+
+---
+
+## Microsoft 365 Copilot Configuration
+
+The `appPackage/` directory contains everything needed to deploy this server as a Microsoft 365 Copilot declarative agent.
+
+### Option A — Copilot Studio (no code deploy)
+
+1. Open [Copilot Studio](https://copilotstudio.microsoft.com) and create or open a copilot
+2. Go to **Actions** → **Add an action** → **Model Context Protocol**
+3. Enter the server URL: `https://<your-azure-container-url>/mcp`
+4. Save and publish
+
+### Option B — Declarative Agent via Teams Toolkit
+
+1. Edit `appPackage/ai-plugin.json` and replace `<your-azure-container-url>` with your deployment URL
+2. Edit `appPackage/manifest.json` and replace `<replace-with-a-new-guid>` with a new GUID
+3. Add your `color.png` (192×192 px) and `outline.png` (32×32 px, transparent) to `appPackage/`
+4. In VS Code with the [Microsoft 365 Agents Toolkit](https://marketplace.visualstudio.com/items?itemName=TeamsDevApp.ms-teams-vscode-extension) extension, run **Provision** then **Deploy**
+5. The agent becomes available in Microsoft 365 Copilot under your tenant
+
+The key files:
+
+| File | Purpose |
+|------|---------|
+| `appPackage/manifest.json` | Teams app manifest (v1.19) |
+| `appPackage/declarativeAgent.json` | Agent name, instructions, and action bindings |
+| `appPackage/ai-plugin.json` | MCP plugin manifest (schema v2.4, `RemoteMCPServer` runtime) |
 
 ---
 
@@ -177,7 +208,7 @@ docker build -t purview-mcp-server .
 ### Run
 
 ```bash
-docker run --env-file .env purview-mcp-server
+docker run --env-file .env -p 8000:8000 purview-mcp-server
 ```
 
 ### Docker Compose (local dev)

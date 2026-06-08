@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.19",
+  "version": "1.0.0",
+  "id": "<replace-with-a-new-guid>",
+  "developer": {
+    "name": "Your Organization",
+    "websiteUrl": "https://github.com/scardoso-lu/purview-mcp-server",
+    "privacyUrl": "https://github.com/scardoso-lu/purview-mcp-server",
+    "termsOfUseUrl": "https://github.com/scardoso-lu/purview-mcp-server"
+  },
+  "name": {
+    "short": "Purview Catalog",
+    "full": "Microsoft Purview Unified Catalog"
+  },
+  "description": {
+    "short": "Explore Purview catalog metadata with AI",
+    "full": "Search and explore Microsoft Purview Unified Catalog metadata including assets, lineage, glossary terms, data products, and data quality via natural language."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#0078D4",
+  "bots": [],
+  "composeExtensions": [],
+  "staticTabs": [],
+  "configurableTabs": [],
+  "connectors": [],
+  "validDomains": [],
+  "copilotAgents": {
+    "declarativeAgents": [
+      {
+        "id": "purviewCatalogAgent",
+        "file": "declarativeAgent.json"
+      }
+    ]
+  }
+}
