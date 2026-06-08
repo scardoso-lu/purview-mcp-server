@@ -36,7 +36,8 @@ def run() -> None:
 
     container = build_container(settings)
     mcp = create_server(container)
-    mcp.run(transport="stdio")
+    log.info("purview_mcp.listening", host=settings.host, port=settings.port)
+    mcp.run(transport="streamable-http", host=settings.host, port=settings.port)
 
 
 if __name__ == "__main__":

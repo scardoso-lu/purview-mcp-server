@@ -1,13 +1,8 @@
 {
   "mcpServers": {
     "purview": {
-      "command": "python",
-      "args": ["-m", "purview_mcp"],
-      "cwd": "/absolute/path/to/purview-mcp-server",
-      "env": {
-        "PURVIEW_ACCOUNT_NAME": "your-purview-account-name",
-        "LOG_LEVEL": "INFO"
-      }
+      "type": "http",
+      "url": "https://<your-azure-container-url>/mcp"
     }
   }
 }

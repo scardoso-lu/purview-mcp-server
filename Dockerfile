@@ -21,6 +21,8 @@ COPY src/ ./src/
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app/src"
 
+EXPOSE 8000
+
 USER nobody
 
 LABEL org.opencontainers.image.title="Purview MCP Server" \
