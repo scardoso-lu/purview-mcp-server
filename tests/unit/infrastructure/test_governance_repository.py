@@ -7,7 +7,6 @@ from purview_mcp.infrastructure.repositories.purview_governance_repository impor
     _parse_glossary_term,
 )
 
-
 # --- Glossary term parsing ---
 
 def test_parse_glossary_term_with_attributes_wrapper() -> None:

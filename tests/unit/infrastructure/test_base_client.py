@@ -1,10 +1,10 @@
+import httpx
 import pytest
 import respx
-import httpx
 from pytest_mock import MockerFixture
 
-from purview_mcp.infrastructure.clients.base_client import BaseClient, _MAX_ATTEMPTS, _RETRY_DELAYS
 from purview_mcp.domain.exceptions import AssetNotFoundError, PurviewAPIError, RateLimitError
+from purview_mcp.infrastructure.clients.base_client import _MAX_ATTEMPTS, _RETRY_DELAYS, BaseClient
 
 
 @pytest.fixture
