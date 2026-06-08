@@ -1,0 +1,8 @@
+services:
+  purview-mcp:
+    build: .
+    env_file: .env
+    stdin_open: true
+    tty: true
+    volumes:
+      - "${HOME}/.azure:/home/nobody/.azure:ro"
