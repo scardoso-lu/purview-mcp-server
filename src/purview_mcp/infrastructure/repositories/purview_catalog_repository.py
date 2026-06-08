@@ -1,25 +1,31 @@
-from typing import Any
+from typing import cast
 
 from purview_mcp.domain.models.asset import Asset, AssetOwner, DataQualityMetric
+from purview_mcp.infrastructure.api_types import EntityDetailRaw, SearchHitRaw
 from purview_mcp.infrastructure.clients.datamap_client import DataMapClient
 
 
-def _parse_asset(raw: dict[str, Any]) -> Asset:
+def _parse_asset(raw: EntityDetailRaw) -> Asset:
     attrs = raw.get("attributes", {})
     contacts = raw.get("contacts", {})
     owners: list[AssetOwner] = []
-    for contact_type in ("Expert", "Owner"):
-        for contact in contacts.get(contact_type, []):
-            owners.append(
-                AssetOwner(
-                    id=contact.get("id", ""),
-                    display_name=contact.get("info", ""),
-                    contact_type=contact_type,
-                )
+    for contact in contacts.get("Expert") or []:
+        owners.append(
+            AssetOwner(
+                id=contact.get("id", ""),
+                display_name=contact.get("info", ""),
+                contact_type="Expert",
             )
+        )
+    for contact in contacts.get("Owner") or []:
+        owners.append(
+            AssetOwner(
+                id=contact.get("id", ""), display_name=contact.get("info", ""), contact_type="Owner"
+            )
+        )
 
     meanings = attrs.get("meanings", [])
-    tags = [m.get("displayText", "") for m in meanings if m.get("displayText")]
+    tags = [meaning.get("displayText", "") for meaning in meanings if meaning.get("displayText")]
 
     dq_raw = attrs.get("dataQualityScore", {})
     dq_metrics: list[DataQualityMetric] = []
@@ -35,7 +41,7 @@ def _parse_asset(raw: dict[str, Any]) -> Asset:
         asset_type=raw.get("typeName", raw.get("entityType", "")),
         description=attrs.get("userDescription") or attrs.get("description"),
         owners=owners,
-        classification=[c.get("typeName", "") for c in raw.get("classifications", [])],
+        classification=[clf.get("typeName", "") for clf in raw.get("classifications", [])],
         endorsement=attrs.get("endorsement"),
         domain=attrs.get("domain"),
         tags=tags + (label_raw if isinstance(label_raw, list) else []),
@@ -45,23 +51,22 @@ def _parse_asset(raw: dict[str, Any]) -> Asset:
     )
 
 
-def _parse_search_result(hit: dict[str, Any]) -> Asset:
+def _parse_search_result(hit: SearchHitRaw) -> Asset:
     """Parse a search result hit (different shape from entity detail)."""
-    contact_list: list[AssetOwner] = []
-    for c in hit.get("contact", []):
-        contact_list.append(
-            AssetOwner(
-                id=c.get("id", ""),
-                display_name=c.get("info", ""),
-                contact_type=c.get("contactType", "Owner"),
-            )
+    owners: list[AssetOwner] = [
+        AssetOwner(
+            id=contact.get("id", ""),
+            display_name=contact.get("info", ""),
+            contact_type=contact.get("contactType", "Owner"),
         )
+        for contact in hit.get("contact", [])
+    ]
     return Asset(
         id=hit.get("id", ""),
         name=hit.get("name", ""),
         asset_type=hit.get("entityType", ""),
         description=hit.get("userDescription") or hit.get("description"),
-        owners=contact_list,
+        owners=owners,
         classification=hit.get("classification", []),
         endorsement=hit.get("endorsement"),
         domain=hit.get("domain"),
@@ -82,11 +87,11 @@ class PurviewCatalogRepository:
         asset_type: str | None = None,
         classification: str | None = None,
     ) -> list[Asset]:
-        result: Any = await self._client.search_query(query, limit, asset_type, classification)
-        hits: list[dict[str, Any]] = result.get("value", [])
-        return [_parse_search_result(h) for h in hits]
+        result = await self._client.search_query(query, limit, asset_type, classification)
+        hits: list[SearchHitRaw] = result.get("value", [])
+        return [_parse_search_result(hit) for hit in hits]
 
     async def get_asset_by_id(self, guid: str) -> Asset:
-        result: Any = await self._client.get_entity(guid)
-        entity: dict[str, Any] = result.get("entity", result)
+        result = await self._client.get_entity(guid)
+        entity: EntityDetailRaw = cast(EntityDetailRaw, result.get("entity", result))
         return _parse_asset(entity)

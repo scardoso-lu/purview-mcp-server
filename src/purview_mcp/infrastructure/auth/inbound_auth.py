@@ -60,7 +60,7 @@ class EntraIDAuthMiddleware:
             logger.warning("inbound_auth.token_claims_invalid", error=str(exc))
             await _send_401(send, "invalid_token", str(exc))
             return
-        except Exception as exc:
+        except (jwt.DecodeError, jwt.InvalidKeyError, jwt.PyJWKClientError) as exc:
             logger.warning("inbound_auth.token_validation_failed", error=type(exc).__name__)
             await _send_401(send, "invalid_token", "Token validation failed")
             return

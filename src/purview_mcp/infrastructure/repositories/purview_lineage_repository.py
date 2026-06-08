@@ -1,10 +1,11 @@
-from typing import Any
+from typing import cast
 
 from purview_mcp.domain.models.lineage import LineageGraph, LineageNode, LineageRelation
+from purview_mcp.infrastructure.api_types import LineageNodeRaw, LineageResponseRaw
 from purview_mcp.infrastructure.clients.datamap_client import DataMapClient
 
 
-def _parse_node(node: dict[str, Any]) -> LineageNode:
+def _parse_node(node: LineageNodeRaw) -> LineageNode:
     return LineageNode(
         id=node.get("guid", ""),
         name=node.get("displayText", node.get("attributes", {}).get("name", "")),
@@ -23,16 +24,18 @@ class PurviewLineageRepository:
         direction: str = "BOTH",
         depth: int = 3,
     ) -> LineageGraph:
-        raw: Any = await self._client.get_lineage(guid, direction, depth)
+        raw: LineageResponseRaw = cast(
+            LineageResponseRaw, await self._client.get_lineage(guid, direction, depth)
+        )
 
-        guid_entity_map: dict[str, dict[str, Any]] = raw.get("guidEntityMap", {})
-        relations_raw: list[dict[str, Any]] = raw.get("relations", [])
+        guid_entity_map = raw.get("guidEntityMap", {})
+        relations_raw = raw.get("relations", [])
 
         upstream_ids: set[str] = set()
         downstream_ids: set[str] = set()
-        for rel in relations_raw:
-            from_id = rel.get("fromEntityId", "")
-            to_id = rel.get("toEntityId", "")
+        for relation in relations_raw:
+            from_id = relation.get("fromEntityId", "")
+            to_id = relation.get("toEntityId", "")
             if to_id == guid:
                 upstream_ids.add(from_id)
             elif from_id == guid:
@@ -46,11 +49,11 @@ class PurviewLineageRepository:
         ]
         relations = [
             LineageRelation(
-                from_id=r.get("fromEntityId", ""),
-                to_id=r.get("toEntityId", ""),
-                relation_type=r.get("relationshipType"),
+                from_id=relation.get("fromEntityId", ""),
+                to_id=relation.get("toEntityId", ""),
+                relation_type=relation.get("relationshipType"),
             )
-            for r in relations_raw
+            for relation in relations_raw
         ]
 
         return LineageGraph(

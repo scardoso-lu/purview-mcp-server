@@ -95,7 +95,7 @@ class BaseClient:
 
             except (RateLimitError, AssetNotFoundError, PurviewAPIError):
                 raise
-            except Exception as exc:
+            except httpx.TransportError as exc:
                 log.error("purview.api.request_failed", error=str(exc), attempt=attempt)
                 if attempt >= _MAX_ATTEMPTS:
                     raise PurviewAPIError(str(exc)) from exc
