@@ -12,11 +12,6 @@ class AssetNotFoundError(PurviewError):
         self.asset_id = asset_id
 
 
-class AuthenticationError(PurviewError):
-    def __init__(self, detail: str = "Failed to authenticate with Microsoft Entra ID") -> None:
-        super().__init__(detail, status_code=401)
-
-
 class RateLimitError(PurviewError):
     def __init__(self) -> None:
         super().__init__("Purview API rate limit exceeded", status_code=429)

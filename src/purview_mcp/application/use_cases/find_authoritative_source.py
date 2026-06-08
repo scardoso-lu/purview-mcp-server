@@ -4,6 +4,8 @@ from purview_mcp.application.services.scoring import ScoredAsset, rank_assets
 from purview_mcp.domain.models.asset import Asset
 from purview_mcp.domain.ports.catalog_port import ICatalogRepository
 
+_MAX_ALTERNATIVES = 4
+
 
 @dataclass
 class AuthoritativeSourceResult:
@@ -24,17 +26,17 @@ class FindAuthoritativeSourceUseCase:
 
         ranked: list[ScoredAsset] = rank_assets(candidates)
         best = ranked[0]
-        explanation = (
-            f"'{best.asset.name}' ranked highest (score={best.score}) because: "
-            + ", ".join(best.reasons)
-            + "."
-            if best.reasons
-            else f"'{best.asset.name}' is the best match found (score={best.score})."
-        )
+        if best.reasons:
+            explanation = (
+                f"'{best.asset.name}' ranked highest (score={best.score}) because: "
+                f"{', '.join(best.reasons)}."
+            )
+        else:
+            explanation = f"'{best.asset.name}' is the best match found (score={best.score})."
 
         return AuthoritativeSourceResult(
             asset=best.asset,
             score=best.score,
             explanation=explanation,
-            alternatives=[s.asset for s in ranked[1:5]],
+            alternatives=[s.asset for s in ranked[1 : 1 + _MAX_ALTERNATIVES]],
         )
