@@ -10,6 +10,7 @@ class ICatalogRepository(Protocol):
         limit: int = 10,
         asset_type: str | None = None,
         classification: str | None = None,
+        offset: int = 0,
     ) -> list[Asset]: ...
 
     async def get_asset_by_id(self, guid: str) -> Asset: ...

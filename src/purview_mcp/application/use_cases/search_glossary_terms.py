@@ -6,5 +6,5 @@ class SearchGlossaryTermsUseCase:
     def __init__(self, governance: IGovernanceRepository) -> None:
         self._governance = governance
 
-    async def execute(self, query: str, limit: int = 25) -> list[GlossaryTerm]:
-        return await self._governance.search_glossary_terms(query, limit)
+    async def execute(self, query: str, limit: int = 25, offset: int = 0) -> list[GlossaryTerm]:
+        return await self._governance.search_glossary_terms(query, limit, offset=offset)

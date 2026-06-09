@@ -1,6 +1,7 @@
-from typing import Any
+from typing import Annotated, Any
 
 from mcp.server.fastmcp import FastMCP
+from pydantic import Field
 
 from purview_mcp.application.use_cases.search_assets import SearchAssetsUseCase
 
@@ -9,9 +10,10 @@ def register(mcp: FastMCP, use_case: SearchAssetsUseCase) -> None:
     @mcp.tool()
     async def search_assets(
         query: str,
-        limit: int = 10,
+        limit: Annotated[int, Field(ge=1, le=100)] = 10,
         asset_type: str | None = None,
         classification: str | None = None,
+        offset: Annotated[int, Field(ge=0, le=10000)] = 0,
     ) -> dict[str, Any]:
         """Search Microsoft Purview catalog assets by keyword.
 
@@ -23,6 +25,7 @@ def register(mcp: FastMCP, use_case: SearchAssetsUseCase) -> None:
             limit: Maximum number of results to return (default 10, max 100).
             asset_type: Filter by asset type (e.g. "azure_sql_table", "PowerBIDataset").
             classification: Filter by classification label (e.g. "MICROSOFT.PERSONAL.EMAIL").
+            offset: Number of results to skip, for paging (default 0).
         """
-        assets = await use_case.execute(query, limit, asset_type, classification)
-        return {"assets": [a.model_dump() for a in assets], "count": len(assets)}
+        assets = await use_case.execute(query, limit, asset_type, classification, offset=offset)
+        return {"assets": [a.model_dump() for a in assets], "count": len(assets), "offset": offset}

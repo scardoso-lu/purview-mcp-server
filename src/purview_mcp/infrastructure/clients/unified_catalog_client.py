@@ -20,12 +20,15 @@ class UnifiedCatalogClient(BaseClient):
         keyword: str | None = None,
         limit: int = 10,
         domain_id: str | None = None,
+        skip: int = 0,
     ) -> Any:
         body: dict[str, Any] = {"top": limit}
         if keyword:
             body["nameKeyword"] = keyword
         if domain_id:
             body["domainIds"] = [domain_id]
+        if skip > 0:
+            body["skip"] = skip
         return await self.post(
             f"{_CATALOG_BASE}/dataProducts/query?api-version={_DATA_PRODUCTS_API_VERSION}",
             body,

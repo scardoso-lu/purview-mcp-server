@@ -14,6 +14,7 @@ def _parse_asset(raw: dict[str, Any]) -> Asset:
                 AssetOwner(
                     id=contact.get("id", ""),
                     display_name=contact.get("info", ""),
+                    email=contact.get("email") or contact.get("mail") or None,
                     contact_type=contact_type,
                 )
             )
@@ -53,6 +54,7 @@ def _parse_search_result(hit: dict[str, Any]) -> Asset:
             AssetOwner(
                 id=c.get("id", ""),
                 display_name=c.get("info", ""),
+                email=c.get("email") or c.get("mail") or None,
                 contact_type=c.get("contactType", "Owner"),
             )
         )
@@ -81,8 +83,11 @@ class PurviewCatalogRepository:
         limit: int = 10,
         asset_type: str | None = None,
         classification: str | None = None,
+        offset: int = 0,
     ) -> list[Asset]:
-        result: Any = await self._client.search_query(query, limit, asset_type, classification)
+        result: Any = await self._client.search_query(
+            query, limit, asset_type, classification, offset=offset
+        )
         hits: list[dict[str, Any]] = result.get("value", [])
         return [_parse_search_result(h) for h in hits]
 

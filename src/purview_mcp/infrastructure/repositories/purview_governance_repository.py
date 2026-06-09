@@ -56,8 +56,13 @@ class PurviewGovernanceRepository:
         self._datamap = datamap
         self._unified = unified_catalog
 
-    async def search_glossary_terms(self, query: str, limit: int = 25) -> list[GlossaryTerm]:
-        raw_terms: list[Any] = await self._datamap.list_glossary_terms(limit=limit * 2)
+    async def search_glossary_terms(
+        self, query: str, limit: int = 25, offset: int = 0
+    ) -> list[GlossaryTerm]:
+        # Keyword filtering happens client-side, so the API-level offset cannot be
+        # used directly. Over-fetch proportionally to (offset + limit) and slice the
+        # filtered matches — a best-effort approximation for small glossaries.
+        raw_terms: list[Any] = await self._datamap.list_glossary_terms(limit=(offset + limit) * 2)
         query_lower = query.lower()
         matched: list[dict[str, Any]] = [
             t
@@ -65,16 +70,17 @@ class PurviewGovernanceRepository:
             if query_lower in (t.get("attributes", t).get("name", "")).lower()
             or query_lower in (t.get("attributes", t).get("shortDescription", "") or "").lower()
         ]
-        return [_parse_glossary_term(t) for t in matched[:limit]]
+        return [_parse_glossary_term(t) for t in matched[offset : offset + limit]]
 
     async def search_data_products(
         self,
         query: str,
         limit: int = 10,
         domain_id: str | None = None,
+        offset: int = 0,
     ) -> list[DataProduct]:
         result: Any = await self._unified.query_data_products(
-            keyword=query, limit=limit, domain_id=domain_id
+            keyword=query, limit=limit, domain_id=domain_id, skip=offset
         )
         items: list[dict[str, Any]] = result.get("value", [])
         return [_parse_data_product(item) for item in items]

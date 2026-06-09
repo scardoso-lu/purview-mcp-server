@@ -11,5 +11,6 @@ class SearchDataProductsUseCase:
         query: str,
         limit: int = 10,
         domain_id: str | None = None,
+        offset: int = 0,
     ) -> list[DataProduct]:
-        return await self._governance.search_data_products(query, limit, domain_id)
+        return await self._governance.search_data_products(query, limit, domain_id, offset=offset)

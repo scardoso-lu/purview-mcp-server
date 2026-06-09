@@ -22,11 +22,12 @@ class DataMapClient(BaseClient):
         limit: int = 10,
         asset_type: str | None = None,
         classification: str | None = None,
+        offset: int = 0,
     ) -> Any:
         body: dict[str, Any] = {
             "keywords": keyword,
             "limit": limit,
-            "offset": 0,
+            "offset": offset,
         }
         filters: list[dict[str, Any]] = []
         if asset_type:
