@@ -14,11 +14,14 @@ dependencies = [
     "mcp>=1.27.0",
     "httpx>=0.28.0",
     "azure-identity>=1.25.0",
+    # azure.identity.aio requires azure-core's aiohttp-based async transport
+    "aiohttp>=3.9.0",
     "pydantic>=2.7.0",
     "pydantic-settings>=2.3.0",
     "structlog>=24.0.0",
     "opentelemetry-sdk>=1.25.0",
     "opentelemetry-api>=1.25.0",
+    "opentelemetry-exporter-otlp-proto-http>=1.25.0",
     "PyJWT>=2.8.0",
     "uvicorn>=0.29.0",
 ]
