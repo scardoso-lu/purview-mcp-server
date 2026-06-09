@@ -112,6 +112,21 @@ No secrets are stored in code.
 
 ---
 
+## Health Checks
+
+The server exposes unauthenticated probe endpoints (they bypass inbound auth and rate limiting):
+
+| Endpoint | Purpose | Behavior |
+|----------|---------|----------|
+| `GET /healthz` | Liveness | `200` whenever the process is serving requests |
+| `GET /readyz` | Readiness | `200` when a Purview access token can be acquired, `503` otherwise |
+
+Use `/healthz` for container liveness probes and `/readyz` for readiness/startup probes
+(Azure Container Apps health probes or Kubernetes `livenessProbe`/`readinessProbe`).
+The Docker image also ships a `HEALTHCHECK` that polls `/healthz`.
+
+---
+
 ## Available MCP Tools
 
 | Tool | Description |

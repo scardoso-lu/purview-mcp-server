@@ -12,6 +12,7 @@ from purview_mcp.infrastructure.config.settings import Settings
 from purview_mcp.infrastructure.telemetry import configure_telemetry
 from purview_mcp.presentation.container import build_container
 from purview_mcp.presentation.mcp.server import create_server
+from purview_mcp.presentation.middleware.health import HealthCheckEndpoints
 from purview_mcp.presentation.middleware.rate_limit import RateLimitMiddleware
 
 
@@ -83,8 +84,12 @@ def run() -> None:
     else:
         log.warning("purview_mcp.rate_limit.disabled", reason="RATE_LIMIT_PER_MINUTE is 0")
 
+    # Outermost so probes bypass auth and rate limiting.
+    serve = HealthCheckEndpoints(serve, container)
+    log.info("purview_mcp.health.enabled", liveness="/healthz", readiness="/readyz")
+
     log.info("purview_mcp.listening", host=settings.host, port=settings.port)
-    uvicorn.run(serve, host=settings.host, port=settings.port)  # type: ignore[arg-type]
+    uvicorn.run(serve, host=settings.host, port=settings.port)
 
 
 if __name__ == "__main__":
