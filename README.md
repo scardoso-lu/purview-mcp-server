@@ -92,8 +92,9 @@ The server starts on `http://0.0.0.0:8000`. The MCP endpoint is at `/mcp`.
 | `LOG_LEVEL` | No | Logging level: `DEBUG`, `INFO`, `WARNING` (default: `INFO`) |
 | `HOST` | No | Bind address (default: `0.0.0.0`) |
 | `PORT` | No | HTTP port (default: `8000`) |
-| `RATE_LIMIT_PER_MINUTE` | No | API rate limit (default: `60`) |
+| `RATE_LIMIT_PER_MINUTE` | No | Per-client (IP) request limit per minute; `0` disables (default: `60`) |
 | `OTEL_ENABLED` | No | Enable OpenTelemetry tracing (`true`/`false`, default: `false`) |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | No | OTLP/HTTP collector endpoint (default: `http://localhost:4318`) |
 
 ---
 
