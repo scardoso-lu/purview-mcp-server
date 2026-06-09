@@ -12,5 +12,8 @@ class SearchAssetsUseCase:
         limit: int = 10,
         asset_type: str | None = None,
         classification: str | None = None,
+        offset: int = 0,
     ) -> list[Asset]:
-        return await self._catalog.search_assets(query, limit, asset_type, classification)
+        return await self._catalog.search_assets(
+            query, limit, asset_type, classification, offset=offset
+        )

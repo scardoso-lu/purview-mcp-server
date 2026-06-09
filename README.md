@@ -92,8 +92,9 @@ The server starts on `http://0.0.0.0:8000`. The MCP endpoint is at `/mcp`.
 | `LOG_LEVEL` | No | Logging level: `DEBUG`, `INFO`, `WARNING` (default: `INFO`) |
 | `HOST` | No | Bind address (default: `0.0.0.0`) |
 | `PORT` | No | HTTP port (default: `8000`) |
-| `RATE_LIMIT_PER_MINUTE` | No | API rate limit (default: `60`) |
+| `RATE_LIMIT_PER_MINUTE` | No | Per-client (IP) request limit per minute; `0` disables (default: `60`) |
 | `OTEL_ENABLED` | No | Enable OpenTelemetry tracing (`true`/`false`, default: `false`) |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | No | OTLP/HTTP collector endpoint (default: `http://localhost:4318`) |
 
 ---
 
@@ -108,6 +109,21 @@ Authentication uses `DefaultAzureCredential` from the Azure Identity SDK, which 
 5. **Azure PowerShell** — local dev fallback
 
 No secrets are stored in code.
+
+---
+
+## Health Checks
+
+The server exposes unauthenticated probe endpoints (they bypass inbound auth and rate limiting):
+
+| Endpoint | Purpose | Behavior |
+|----------|---------|----------|
+| `GET /healthz` | Liveness | `200` whenever the process is serving requests |
+| `GET /readyz` | Readiness | `200` when a Purview access token can be acquired, `503` otherwise |
+
+Use `/healthz` for container liveness probes and `/readyz` for readiness/startup probes
+(Azure Container Apps health probes or Kubernetes `livenessProbe`/`readinessProbe`).
+The Docker image also ships a `HEALTHCHECK` that polls `/healthz`.
 
 ---
 

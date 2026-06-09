@@ -9,6 +9,7 @@ class IGovernanceRepository(Protocol):
         self,
         query: str,
         limit: int = 25,
+        offset: int = 0,
     ) -> list[GlossaryTerm]: ...
 
     async def search_data_products(
@@ -16,4 +17,5 @@ class IGovernanceRepository(Protocol):
         query: str,
         limit: int = 10,
         domain_id: str | None = None,
+        offset: int = 0,
     ) -> list[DataProduct]: ...

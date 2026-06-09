@@ -1,6 +1,7 @@
-from typing import Any
+from typing import Annotated, Any, Literal
 
 from mcp.server.fastmcp import FastMCP
+from pydantic import Field
 
 from purview_mcp.application.use_cases.get_asset_lineage import GetAssetLineageUseCase
 
@@ -9,8 +10,8 @@ def register(mcp: FastMCP, use_case: GetAssetLineageUseCase) -> None:
     @mcp.tool()
     async def get_asset_lineage(
         asset_id: str,
-        direction: str = "BOTH",
-        depth: int = 3,
+        direction: Literal["BOTH", "INPUT", "OUTPUT"] = "BOTH",
+        depth: Annotated[int, Field(ge=1, le=6)] = 3,
     ) -> dict[str, Any]:
         """Return upstream and downstream data lineage for an asset.
 

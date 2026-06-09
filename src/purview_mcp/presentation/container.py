@@ -35,6 +35,15 @@ class Container:
     search_data_products: SearchDataProductsUseCase
     find_authoritative_source: FindAuthoritativeSourceUseCase
     get_data_quality: GetDataQualityUseCase
+    datamap_client: DataMapClient
+    unified_catalog_client: UnifiedCatalogClient
+    credential: PurviewCredentialProvider
+
+    async def aclose(self) -> None:
+        """Release HTTP connections and the Azure credential on shutdown."""
+        await self.datamap_client.aclose()
+        await self.unified_catalog_client.aclose()
+        await self.credential.aclose()
 
 
 def build_container(settings: Settings) -> Container:
@@ -57,4 +66,7 @@ def build_container(settings: Settings) -> Container:
         search_data_products=SearchDataProductsUseCase(governance_repo),
         find_authoritative_source=FindAuthoritativeSourceUseCase(catalog_repo),
         get_data_quality=GetDataQualityUseCase(catalog_repo),
+        datamap_client=datamap,
+        unified_catalog_client=unified,
+        credential=credential,
     )
