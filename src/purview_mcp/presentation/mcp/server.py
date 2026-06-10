@@ -10,6 +10,7 @@ from purview_mcp.presentation.mcp.tools import (
     search_assets,
     search_data_products,
     search_glossary_terms,
+    search_undocumented_assets,
 )
 
 
@@ -18,13 +19,16 @@ def create_server(container: Container) -> FastMCP:
         name="Microsoft Purview Unified Catalog",
         instructions=(
             "This server exposes Microsoft Purview governance metadata. "
-            "Use search_assets to discover datasets, get_asset_lineage to trace data flow, "
+            "Use search_assets to discover documented datasets (assets with a description), "
+            "search_undocumented_assets to find assets missing a description, "
+            "get_asset_lineage to trace data flow, "
             "find_authoritative_source to identify the most trusted dataset for a business concept, "
             "and search_glossary_terms to look up business definitions."
         ),
     )
 
     search_assets.register(mcp, container.search_assets)
+    search_undocumented_assets.register(mcp, container.search_undocumented_assets)
     get_asset_details.register(mcp, container.get_asset_details)
     get_asset_lineage.register(mcp, container.get_asset_lineage)
     get_asset_owner.register(mcp, container.get_asset_owner)

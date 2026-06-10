@@ -1,17 +1,12 @@
+from purview_mcp.application.use_cases.search_assets import FETCH_CAP
 from purview_mcp.domain.models.asset import Asset
 from purview_mcp.domain.ports.catalog_port import ICatalogRepository
 
-# Purview's search filter cannot express "has a description", so documented /
-# undocumented filtering happens client-side. Over-fetch proportionally to
-# (offset + limit) so a page can usually be filled, capped at the search API's
-# maximum page size.
-FETCH_CAP = 1000
 
+class SearchUndocumentedAssetsUseCase:
+    """Search catalog assets that are missing a description.
 
-class SearchAssetsUseCase:
-    """Search catalog assets, returning only assets that have a description.
-
-    Assets without a description are served by SearchUndocumentedAssetsUseCase.
+    Complements SearchAssetsUseCase, which returns only documented assets.
     """
 
     def __init__(self, catalog: ICatalogRepository) -> None:
@@ -29,5 +24,5 @@ class SearchAssetsUseCase:
         assets = await self._catalog.search_assets(
             query, fetch_size, asset_type, classification, offset=0
         )
-        described = [a for a in assets if a.has_description()]
-        return described[offset : offset + limit]
+        undocumented = [a for a in assets if not a.has_description()]
+        return undocumented[offset : offset + limit]

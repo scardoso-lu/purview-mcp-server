@@ -10,6 +10,9 @@ from purview_mcp.application.use_cases.get_data_quality import GetDataQualityUse
 from purview_mcp.application.use_cases.search_assets import SearchAssetsUseCase
 from purview_mcp.application.use_cases.search_data_products import SearchDataProductsUseCase
 from purview_mcp.application.use_cases.search_glossary_terms import SearchGlossaryTermsUseCase
+from purview_mcp.application.use_cases.search_undocumented_assets import (
+    SearchUndocumentedAssetsUseCase,
+)
 from purview_mcp.infrastructure.auth.azure_credential import PurviewCredentialProvider
 from purview_mcp.infrastructure.clients.datamap_client import DataMapClient
 from purview_mcp.infrastructure.clients.unified_catalog_client import UnifiedCatalogClient
@@ -28,6 +31,7 @@ from purview_mcp.infrastructure.repositories.purview_lineage_repository import (
 @dataclass
 class Container:
     search_assets: SearchAssetsUseCase
+    search_undocumented_assets: SearchUndocumentedAssetsUseCase
     get_asset_details: GetAssetDetailsUseCase
     get_asset_lineage: GetAssetLineageUseCase
     get_asset_owner: GetAssetOwnerUseCase
@@ -59,6 +63,7 @@ def build_container(settings: Settings) -> Container:
 
     return Container(
         search_assets=SearchAssetsUseCase(catalog_repo),
+        search_undocumented_assets=SearchUndocumentedAssetsUseCase(catalog_repo),
         get_asset_details=GetAssetDetailsUseCase(catalog_repo),
         get_asset_lineage=GetAssetLineageUseCase(lineage_repo),
         get_asset_owner=GetAssetOwnerUseCase(catalog_repo),
