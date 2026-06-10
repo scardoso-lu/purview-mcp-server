@@ -1,4 +1,4 @@
-from purview_mcp.application.use_cases.search_assets import FETCH_CAP
+from purview_mcp.application.use_cases.asset_search import search_assets_filtered
 from purview_mcp.domain.models.asset import Asset
 from purview_mcp.domain.ports.catalog_port import ICatalogRepository
 
@@ -20,9 +20,12 @@ class SearchUndocumentedAssetsUseCase:
         classification: str | None = None,
         offset: int = 0,
     ) -> list[Asset]:
-        fetch_size = min((offset + limit) * 2, FETCH_CAP)
-        assets = await self._catalog.search_assets(
-            query, fetch_size, asset_type, classification, offset=0
+        return await search_assets_filtered(
+            self._catalog,
+            query,
+            limit,
+            asset_type,
+            classification,
+            offset,
+            lambda a: not a.has_description(),
         )
-        undocumented = [a for a in assets if not a.has_description()]
-        return undocumented[offset : offset + limit]
