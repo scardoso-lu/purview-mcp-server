@@ -1,11 +1,6 @@
+from purview_mcp.application.use_cases.asset_search import search_assets_filtered
 from purview_mcp.domain.models.asset import Asset
 from purview_mcp.domain.ports.catalog_port import ICatalogRepository
-
-# Purview's search filter cannot express "has a description", so documented /
-# undocumented filtering happens client-side. Over-fetch proportionally to
-# (offset + limit) so a page can usually be filled, capped at the search API's
-# maximum page size.
-FETCH_CAP = 1000
 
 
 class SearchAssetsUseCase:
@@ -25,9 +20,12 @@ class SearchAssetsUseCase:
         classification: str | None = None,
         offset: int = 0,
     ) -> list[Asset]:
-        fetch_size = min((offset + limit) * 2, FETCH_CAP)
-        assets = await self._catalog.search_assets(
-            query, fetch_size, asset_type, classification, offset=0
+        return await search_assets_filtered(
+            self._catalog,
+            query,
+            limit,
+            asset_type,
+            classification,
+            offset,
+            Asset.has_description,
         )
-        described = [a for a in assets if a.has_description()]
-        return described[offset : offset + limit]

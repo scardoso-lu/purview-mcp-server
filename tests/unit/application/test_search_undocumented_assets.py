@@ -18,7 +18,7 @@ async def test_returns_only_assets_without_description(
     result = await use_case.execute("customer")
 
     assert [a.id for a in result] == [uncertified_asset.id]
-    mock_repo.search_assets.assert_called_once_with("customer", 20, None, None, offset=0)
+    mock_repo.search_assets.assert_called_once_with("customer", 50, None, None, offset=0)
 
 
 @pytest.mark.asyncio
@@ -47,7 +47,26 @@ async def test_passes_filters_and_applies_offset(
     result = await use_case.execute("customer", limit=1, asset_type="azure_sql_view", offset=1)
 
     assert [a.id for a in result] == ["guid-undocumented-2"]
-    mock_repo.search_assets.assert_called_once_with("customer", 4, "azure_sql_view", None, offset=0)
+    mock_repo.search_assets.assert_called_once_with(
+        "customer", 50, "azure_sql_view", None, offset=0
+    )
+
+
+@pytest.mark.asyncio
+async def test_pages_until_filtered_page_filled(
+    mocker: MockerFixture, certified_asset: Asset, uncertified_asset: Asset
+) -> None:
+    first_page = [certified_asset.model_copy(update={"id": f"doc-{i}"}) for i in range(50)]
+    second_page = [uncertified_asset.model_copy(update={"id": "undoc-1"})]
+    mock_repo = mocker.AsyncMock()
+    mock_repo.search_assets.side_effect = [first_page, second_page]
+
+    use_case = SearchUndocumentedAssetsUseCase(catalog=mock_repo)
+    result = await use_case.execute("customer", limit=2)
+
+    assert [a.id for a in result] == ["undoc-1"]
+    assert mock_repo.search_assets.call_count == 2
+    mock_repo.search_assets.assert_any_call("customer", 50, None, None, offset=50)
 
 
 @pytest.mark.asyncio
