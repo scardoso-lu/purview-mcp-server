@@ -131,7 +131,8 @@ The Docker image also ships a `HEALTHCHECK` that polls `/healthz`.
 
 | Tool | Description |
 |------|-------------|
-| `search_assets` | Search catalog assets by keyword |
+| `search_assets` | Search catalog assets by keyword (returns only assets that have a description) |
+| `search_undocumented_assets` | Search catalog assets that are missing a description |
 | `get_asset_details` | Full metadata for an asset by GUID |
 | `get_asset_lineage` | Upstream and downstream lineage graph |
 | `get_asset_owner` | Business and technical owners |

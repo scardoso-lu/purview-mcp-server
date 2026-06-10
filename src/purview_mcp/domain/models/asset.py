@@ -27,3 +27,6 @@ class Asset(BaseModel):
     qualified_name: str
     collection: str | None = None
     data_quality: list[DataQualityMetric] = Field(default_factory=list)
+
+    def has_description(self) -> bool:
+        return bool(self.description and self.description.strip())
