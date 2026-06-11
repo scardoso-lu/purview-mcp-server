@@ -150,6 +150,11 @@ docker compose up --build
 Set `SERVING_BACKEND=purview` to serve live from the Purview API with no database
 or ETL — useful as a fallback or for quick local testing.
 
+> **Fail-fast:** if `SERVING_BACKEND=postgres` (the default) but `DATABASE_URL`
+> is not set, the server logs a configuration error and **exits with code 1**
+> rather than starting in a degraded state. To run without a database, set
+> `SERVING_BACKEND=purview` explicitly.
+
 **Versioned migrations (optional)**
 
 The runtime bootstraps the schema automatically. Operators who want managed

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-import structlog
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from purview_mcp.application.use_cases.find_authoritative_source import (
@@ -16,6 +15,7 @@ from purview_mcp.application.use_cases.search_glossary_terms import SearchGlossa
 from purview_mcp.application.use_cases.search_undocumented_assets import (
     SearchUndocumentedAssetsUseCase,
 )
+from purview_mcp.domain.exceptions import ConfigurationError
 from purview_mcp.domain.ports.catalog_port import ICatalogRepository
 from purview_mcp.domain.ports.governance_port import IGovernanceRepository
 from purview_mcp.domain.ports.lineage_port import ILineageRepository
@@ -40,8 +40,6 @@ from purview_mcp.infrastructure.repositories.purview_governance_repository impor
 from purview_mcp.infrastructure.repositories.purview_lineage_repository import (
     PurviewLineageRepository,
 )
-
-logger = structlog.get_logger(__name__)
 
 
 @dataclass
@@ -97,15 +95,15 @@ def build_container(settings: Settings) -> Container:
 
     backend = settings.serving_backend
     if backend == "postgres" and not settings.database_url:
-        # Don't crash on a missing DB URL — fall back to live Purview serving so
-        # the server still boots (e.g. smoke tests / misconfiguration), with a
-        # loud warning. Set DATABASE_URL to enable the cache-backed path.
-        logger.warning(
-            "container.postgres_no_database_url",
-            reason="SERVING_BACKEND=postgres but DATABASE_URL is unset — "
-            "falling back to live Purview serving (rate-limited)",
+        # Fail fast: postgres serving was requested but no database is configured.
+        # The caller (__main__) turns this into a clean exit(1). To run without a
+        # database, explicitly set SERVING_BACKEND=purview.
+        raise ConfigurationError(
+            "SERVING_BACKEND=postgres requires DATABASE_URL "
+            "(e.g. postgresql+asyncpg://user:pass@host:5432/purview). "
+            "Set DATABASE_URL, or set SERVING_BACKEND=purview to serve live "
+            "from the Purview API without a database."
         )
-        backend = "purview"
 
     if backend == "postgres":
         assert settings.database_url is not None

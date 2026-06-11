@@ -1,5 +1,6 @@
 import pytest
 
+from purview_mcp.domain.exceptions import ConfigurationError
 from purview_mcp.infrastructure.config.settings import Settings
 from purview_mcp.infrastructure.repositories.pg_catalog_repository import PgCatalogRepository
 from purview_mcp.infrastructure.repositories.purview_catalog_repository import (
@@ -30,12 +31,11 @@ def test_postgres_backend_wires_db_and_scheduler() -> None:
     assert isinstance(container.get_asset_details._catalog, PgCatalogRepository)
 
 
-def test_postgres_without_database_url_falls_back_to_live() -> None:
-    # Must not raise: the server still boots, serving live from Purview.
-    container = build_container(Settings(purview_account_name="acct", serving_backend="postgres"))
-    assert container.db_engine is None
-    assert container.scheduler is None
-    assert isinstance(container.get_asset_details._catalog, PurviewCatalogRepository)
+def test_postgres_without_database_url_raises() -> None:
+    # Fail fast: postgres serving requested but no DATABASE_URL configured.
+    # __main__ turns this ConfigurationError into a clean exit(1).
+    with pytest.raises(ConfigurationError):
+        build_container(Settings(purview_account_name="acct", serving_backend="postgres"))
 
 
 def test_etl_disabled_keeps_db_without_scheduler() -> None:
