@@ -65,9 +65,7 @@ class Loader:
     async def start_run(self, kind: str) -> int:
         async with self._sm.begin() as session:
             result = await session.execute(
-                pg_insert(m.EtlRun)
-                .values(kind=kind, status="running")
-                .returning(m.EtlRun.run_id)
+                pg_insert(m.EtlRun).values(kind=kind, status="running").returning(m.EtlRun.run_id)
             )
             return int(result.scalar_one())
 
@@ -124,9 +122,7 @@ class Loader:
                 await self._upsert(session, m.Asset, asset_rows, ["id"])
 
                 ids = [r.asset.id for r in batch]
-                await session.execute(
-                    delete(m.AssetOwner).where(m.AssetOwner.asset_id.in_(ids))
-                )
+                await session.execute(delete(m.AssetOwner).where(m.AssetOwner.asset_id.in_(ids)))
                 await session.execute(
                     delete(m.Classification).where(m.Classification.asset_id.in_(ids))
                 )
@@ -315,9 +311,7 @@ class Loader:
                 m.LineageNode,
                 m.LineageRelation,
             ):
-                result = await session.execute(
-                    delete(model).where(model.last_seen_run_id < run_id)
-                )
+                result = await session.execute(delete(model).where(model.last_seen_run_id < run_id))
                 deleted += getattr(result, "rowcount", 0) or 0
         return deleted
 

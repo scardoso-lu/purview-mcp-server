@@ -37,7 +37,10 @@ def _to_asset(row: m.Asset, *, include_data_quality: bool) -> Asset:
         qualified_name=row.qualified_name,
         collection=row.collection,
         data_quality=(
-            [DataQualityMetric(name=d.name, value=d.value, status=d.status) for d in row.data_quality]
+            [
+                DataQualityMetric(name=d.name, value=d.value, status=d.status)
+                for d in row.data_quality
+            ]
             if include_data_quality
             else []
         ),

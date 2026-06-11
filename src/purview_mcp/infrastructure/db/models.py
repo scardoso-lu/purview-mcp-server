@@ -33,12 +33,8 @@ _ASSET_TSV = (
     "coalesce(name, '') || ' ' || coalesce(description, '') || ' ' "
     "|| coalesce(qualified_name, ''))"
 )
-_TERM_TSV = (
-    "to_tsvector('simple', coalesce(name, '') || ' ' || coalesce(definition, ''))"
-)
-_PRODUCT_TSV = (
-    "to_tsvector('simple', coalesce(name, '') || ' ' || coalesce(description, ''))"
-)
+_TERM_TSV = "to_tsvector('simple', coalesce(name, '') || ' ' || coalesce(definition, ''))"
+_PRODUCT_TSV = "to_tsvector('simple', coalesce(name, '') || ' ' || coalesce(description, ''))"
 
 
 class Base(DeclarativeBase):
@@ -171,9 +167,7 @@ class LineageRelation(Base):
     __table_args__ = (
         # relation_type is nullable, so a generated key column gives the unique
         # constraint a non-null target usable as an ON CONFLICT element.
-        UniqueConstraint(
-            "from_id", "to_id", "rel_type_key", name="uq_lineage_relation"
-        ),
+        UniqueConstraint("from_id", "to_id", "rel_type_key", name="uq_lineage_relation"),
         Index("ix_lineage_relations_from_id", "from_id"),
         Index("ix_lineage_relations_to_id", "to_id"),
         Index("ix_lineage_relations_last_seen_run_id", "last_seen_run_id"),
@@ -275,9 +269,7 @@ class EtlRun(Base):
     run_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     kind: Mapped[str] = mapped_column(String, nullable=False)  # "full" | "incremental"
     status: Mapped[str] = mapped_column(String, nullable=False)  # running|success|failed
-    started_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     assets_upserted: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     terms_upserted: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
