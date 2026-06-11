@@ -56,6 +56,7 @@ def run() -> None:
     @asynccontextmanager
     async def lifespan(app: Starlette) -> AsyncIterator[None]:
         async with inner_lifespan(app):
+            await container.startup()
             try:
                 yield
             finally:

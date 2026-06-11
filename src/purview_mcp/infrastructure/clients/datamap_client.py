@@ -23,12 +23,26 @@ class DataMapClient(BaseClient):
         asset_type: str | None = None,
         classification: str | None = None,
         offset: int = 0,
+        continuation_token: str | None = None,
+        orderby: list[dict[str, str]] | None = None,
     ) -> Any:
+        """Run a Discovery/Query search.
+
+        Pass ``continuation_token`` to page beyond the offset window: the
+        response includes a ``continuationToken`` that should be fed back in to
+        retrieve the next page. When a token is supplied ``offset`` is omitted,
+        since the two pagination modes are mutually exclusive.
+        """
         body: dict[str, Any] = {
             "keywords": keyword,
             "limit": limit,
-            "offset": offset,
         }
+        if continuation_token is not None:
+            body["continuationToken"] = continuation_token
+        else:
+            body["offset"] = offset
+        if orderby:
+            body["orderby"] = orderby
         filters: list[dict[str, Any]] = []
         if asset_type:
             filters.append({"entityType": asset_type, "includeSubTypes": True})

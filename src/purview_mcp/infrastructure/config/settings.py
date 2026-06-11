@@ -23,6 +23,21 @@ class Settings(BaseSettings):
     otel_exporter_otlp_endpoint: str | None = None
     request_timeout_seconds: int = 30
 
+    # --- ETL / PostgreSQL-backed serving ---
+    # Async SQLAlchemy URL, e.g. postgresql+asyncpg://user:pass@host:5432/purview
+    database_url: str | None = None
+    # Which repository implementations the MCP tools read from:
+    #   "postgres" -> serve from the ETL-populated database (default)
+    #   "purview"  -> serve live from the Purview API (rollback lever / no-DB mode)
+    serving_backend: str = "postgres"
+    etl_enabled: bool = True
+    etl_interval_seconds: int = 900
+    # Every Nth scheduled run is a full reconcile (delete detection); others are incremental.
+    etl_full_reconcile_every_n_runs: int = 24
+    etl_concurrency: int = 6
+    etl_batch_size: int = 500
+    etl_lineage_depth: int = 3
+
     @property
     def purview_endpoint(self) -> str:
         return f"https://{self.purview_account_name}.purview.azure.com"
