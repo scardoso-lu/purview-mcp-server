@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+import structlog
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from purview_mcp.application.use_cases.find_authoritative_source import (
@@ -39,6 +40,8 @@ from purview_mcp.infrastructure.repositories.purview_governance_repository impor
 from purview_mcp.infrastructure.repositories.purview_lineage_repository import (
     PurviewLineageRepository,
 )
+
+logger = structlog.get_logger(__name__)
 
 
 @dataclass
@@ -92,12 +95,20 @@ def build_container(settings: Settings) -> Container:
     lineage_repo: ILineageRepository
     governance_repo: IGovernanceRepository
 
-    if settings.serving_backend == "postgres":
-        if not settings.database_url:
-            raise ValueError(
-                "SERVING_BACKEND=postgres requires DATABASE_URL "
-                "(e.g. postgresql+asyncpg://user:pass@host:5432/purview)"
-            )
+    backend = settings.serving_backend
+    if backend == "postgres" and not settings.database_url:
+        # Don't crash on a missing DB URL — fall back to live Purview serving so
+        # the server still boots (e.g. smoke tests / misconfiguration), with a
+        # loud warning. Set DATABASE_URL to enable the cache-backed path.
+        logger.warning(
+            "container.postgres_no_database_url",
+            reason="SERVING_BACKEND=postgres but DATABASE_URL is unset — "
+            "falling back to live Purview serving (rate-limited)",
+        )
+        backend = "purview"
+
+    if backend == "postgres":
+        assert settings.database_url is not None
         engine = create_engine(settings.database_url)
         sessionmaker = create_sessionmaker(engine)
         catalog_repo = PgCatalogRepository(sessionmaker)
