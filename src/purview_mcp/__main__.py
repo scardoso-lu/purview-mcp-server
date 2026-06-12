@@ -7,6 +7,7 @@ import structlog
 import uvicorn
 from starlette.applications import Starlette
 
+from purview_mcp.domain.exceptions import ConfigurationError
 from purview_mcp.infrastructure.auth.inbound_auth import EntraIDAuthMiddleware
 from purview_mcp.infrastructure.config.settings import Settings
 from purview_mcp.infrastructure.telemetry import configure_telemetry
@@ -44,7 +45,12 @@ def run() -> None:
         endpoint=settings.purview_endpoint,
     )
 
-    container = build_container(settings)
+    try:
+        container = build_container(settings)
+    except ConfigurationError as exc:
+        log.error("purview_mcp.config_error", error=str(exc))
+        raise SystemExit(1) from exc
+
     mcp = create_server(container)
 
     asgi_app = mcp.streamable_http_app()
@@ -56,6 +62,7 @@ def run() -> None:
     @asynccontextmanager
     async def lifespan(app: Starlette) -> AsyncIterator[None]:
         async with inner_lifespan(app):
+            await container.startup()
             try:
                 yield
             finally:

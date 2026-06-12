@@ -46,7 +46,9 @@ jobs:
 
       - name: Verify image starts and responds on /healthz
         run: |
-          docker run -d --name purview-ci -e PURVIEW_ACCOUNT_NAME=test -p 8000:8000 purview-mcp-server:ci
+          docker run -d --name purview-ci \
+            -e PURVIEW_ACCOUNT_NAME=test -e SERVING_BACKEND=purview \
+            -p 8000:8000 purview-mcp-server:ci
           ok=0
           for i in $(seq 1 30); do
             if curl -fsS http://localhost:8000/healthz; then ok=1; break; fi

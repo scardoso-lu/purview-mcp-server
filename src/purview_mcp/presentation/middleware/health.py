@@ -3,7 +3,9 @@ import json
 from typing import Any
 
 import structlog
+from sqlalchemy import func, select, text
 
+from purview_mcp.infrastructure.db import models as m
 from purview_mcp.presentation.container import Container
 
 logger = structlog.get_logger(__name__)
@@ -47,10 +49,37 @@ class HealthCheckEndpoints:
                 logger.warning("health.readiness_failed", error=type(exc).__name__)
                 await _send_json(send, 503, {"status": "unready", "reason": type(exc).__name__})
                 return
+
+            # When serving from Postgres, also require the DB to be reachable and
+            # populated by at least one successful ETL run — otherwise tools
+            # would return empty results while the server looks "ready".
+            sm = self._container.db_sessionmaker
+            if sm is not None:
+                try:
+                    populated = await asyncio.wait_for(
+                        _count_successful_runs(sm), self._readiness_timeout
+                    )
+                except Exception as exc:
+                    logger.warning("health.readiness_db_failed", error=type(exc).__name__)
+                    await _send_json(send, 503, {"status": "unready", "reason": "database"})
+                    return
+                if not populated:
+                    await _send_json(send, 503, {"status": "unready", "reason": "no_data"})
+                    return
+
             await _send_json(send, 200, {"status": "ready"})
             return
 
         await self._app(scope, receive, send)
+
+
+async def _count_successful_runs(sm: Any) -> int:
+    async with sm() as session:
+        await session.execute(text("SELECT 1"))
+        result = await session.execute(
+            select(func.count()).select_from(m.EtlRun).where(m.EtlRun.status == "success")
+        )
+        return int(result.scalar_one())
 
 
 async def _send_json(send: Any, status: int, payload: dict[str, str]) -> None:

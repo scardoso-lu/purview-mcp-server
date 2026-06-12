@@ -34,6 +34,8 @@ async def _call(middleware: HealthCheckEndpoints, scope: dict[str, Any]) -> tupl
 def _middleware(mocker: MockerFixture, **kwargs: Any) -> tuple[HealthCheckEndpoints, Any]:
     container = mocker.MagicMock()
     container.credential.get_token = mocker.AsyncMock(return_value="tok")
+    # Default: no DB-backed serving, so readiness depends only on the credential.
+    container.db_sessionmaker = None
     return HealthCheckEndpoints(_inner_app, container, **kwargs), container
 
 

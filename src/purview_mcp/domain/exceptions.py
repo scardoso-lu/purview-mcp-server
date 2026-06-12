@@ -24,3 +24,10 @@ class RateLimitError(PurviewError):
 
 class PurviewAPIError(PurviewError):
     pass
+
+
+class ConfigurationError(PurviewError):
+    """Raised when the server is misconfigured and cannot start."""
+
+    def __init__(self, detail: str) -> None:
+        super().__init__(detail)

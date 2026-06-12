@@ -1,50 +1,15 @@
 from typing import Any
 
-from purview_mcp.domain.models.data_product import DataProduct, DataProductOwner
+from purview_mcp.domain.models.data_product import DataProduct
 from purview_mcp.domain.models.glossary import GlossaryTerm
 from purview_mcp.infrastructure.clients.datamap_client import DataMapClient
 from purview_mcp.infrastructure.clients.unified_catalog_client import UnifiedCatalogClient
 
-
-def _parse_glossary_term(raw: dict[str, Any]) -> GlossaryTerm:
-    attrs: dict[str, Any] = raw.get("attributes", raw)
-    return GlossaryTerm(
-        id=raw.get("guid", raw.get("termGuid", "")),
-        name=attrs.get("name", raw.get("displayText", "")),
-        qualified_name=attrs.get("qualifiedName", ""),
-        definition=attrs.get("shortDescription") or attrs.get("definition"),
-        status=attrs.get("status"),
-        long_description=attrs.get("longDescription"),
-        examples=attrs.get("examples", []) or [],
-        synonyms=[s.get("displayText", "") for s in (attrs.get("synonyms") or [])],
-        stewards=[s.get("id", "") for s in (attrs.get("stewards") or [])],
-        experts=[e.get("id", "") for e in (attrs.get("experts") or [])],
-    )
-
-
-def _parse_data_product(raw: dict[str, Any]) -> DataProduct:
-    props: dict[str, Any] = raw.get("properties", raw)
-    owners: list[DataProductOwner] = []
-    for o in props.get("owners", []) or []:
-        owners.append(
-            DataProductOwner(
-                id=o.get("id", ""),
-                display_name=o.get("displayName"),
-                email=o.get("email"),
-            )
-        )
-    return DataProduct(
-        id=raw.get("id", ""),
-        name=props.get("name", raw.get("name", "")),
-        description=props.get("description"),
-        status=props.get("status"),
-        owners=owners,
-        domain_id=props.get("domainId"),
-        domain_name=props.get("domainName"),
-        asset_count=props.get("assetCount", 0) or 0,
-        tags=props.get("tags", []) or [],
-        data_product_type=props.get("dataProductType"),
-    )
+# Re-exported for backward compatibility (tests and the ETL import these).
+from purview_mcp.infrastructure.repositories._parsers import (  # noqa: F401
+    _parse_data_product,
+    _parse_glossary_term,
+)
 
 
 class PurviewGovernanceRepository:

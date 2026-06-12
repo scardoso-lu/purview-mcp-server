@@ -29,12 +29,24 @@ Claude / Copilot / Codex / Microsoft 365 Copilot
     ├── Presentation Layer  — MCP tools (FastMCP)
     ├── Application Layer   — Use cases
     ├── Domain Layer        — Models, ports
-    └── Infrastructure      — Purview REST clients, Entra ID auth
+    └── Infrastructure      — Purview REST clients, Entra ID auth, Postgres cache, ETL
          │
-  Microsoft Purview APIs
-    ├── DataMap API   https://{account}.purview.azure.com/datamap/api/
-    └── Unified Catalog  https://{account}.purview.azure.com/datagovernance/catalog/
+   ┌─────┴───────────────────────────┐
+   │                                 │
+PostgreSQL cache                Microsoft Purview APIs
+ (tools read from here)          ├── DataMap API   /datamap/api/
+   ▲                             └── Unified Catalog  /datagovernance/catalog/
+   │                                 ▲
+   └──── built-in ETL scheduler ─────┘
+        (incremental + periodic full reconcile)
 ```
+
+By default the MCP tools serve from a local **PostgreSQL cache** that a built-in
+ETL keeps in sync with Purview. This avoids hitting Purview's API rate limit on
+every agent request: only the ETL talks to Purview (a small, retry-backed
+workload), while agent traffic is served from Postgres. Set
+`SERVING_BACKEND=purview` to bypass the cache and serve live from the Purview API
+instead (no database required). See [Data Cache & ETL](#data-cache--etl).
 
 ---
 
@@ -95,6 +107,63 @@ The server starts on `http://0.0.0.0:8000`. The MCP endpoint is at `/mcp`.
 | `RATE_LIMIT_PER_MINUTE` | No | Per-client (IP) request limit per minute; `0` disables (default: `60`) |
 | `OTEL_ENABLED` | No | Enable OpenTelemetry tracing (`true`/`false`, default: `false`) |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | No | OTLP/HTTP collector endpoint (default: `http://localhost:4318`) |
+| `SERVING_BACKEND` | No | `postgres` (serve from the ETL cache, default) or `purview` (serve live, no DB) |
+| `DATABASE_URL` | When `postgres` | Async SQLAlchemy URL, e.g. `postgresql+asyncpg://user:pass@host:5432/purview` |
+| `ETL_ENABLED` | No | Run the built-in ETL scheduler (`true`/`false`, default: `true`) |
+| `ETL_INTERVAL_SECONDS` | No | Seconds between ETL cycles (default: `900`) |
+| `ETL_FULL_RECONCILE_EVERY_N_RUNS` | No | Every Nth cycle is a full reconcile / delete detection (default: `24`) |
+| `ETL_CONCURRENCY` | No | Max concurrent per-asset detail/lineage fetches (default: `6`) |
+| `ETL_BATCH_SIZE` | No | Upsert batch size (default: `500`) |
+| `ETL_LINEAGE_DEPTH` | No | Lineage traversal depth captured per asset (default: `3`) |
+
+---
+
+## Data Cache & ETL
+
+To stay under Purview's API rate limit, the server can serve all MCP tools from a
+local **PostgreSQL** database that a built-in ETL keeps in sync.
+
+**How it works**
+
+- A background scheduler (started with the server) runs one extract+load cycle at
+  a time. Every Nth cycle is a **full reconcile** (enumerate everything, then
+  delete rows that disappeared from Purview); the others are **incremental**
+  (only entities whose `updateTime` is newer than the last watermark).
+- Full enumeration uses the Discovery/Query API's **`continuationToken`** cursor,
+  which streams the entire catalog with no offset-window ceiling.
+- The Postgres-backed repositories implement the same domain ports as the live
+  Purview repositories, so the MCP tools and use cases are unchanged.
+- On an empty database the first cycle is forced to a full extract; `/readyz`
+  returns `503` until that first extract completes, so traffic is only routed once
+  data is loaded.
+
+**Run locally with Docker Compose** (starts Postgres + the server):
+
+```bash
+cp .env.example .env   # DATABASE_URL already points at the compose postgres service
+az login               # ETL needs Purview access
+docker compose up --build
+```
+
+**Rollback / no-DB mode**
+
+Set `SERVING_BACKEND=purview` to serve live from the Purview API with no database
+or ETL — useful as a fallback or for quick local testing.
+
+> **Fail-fast:** if `SERVING_BACKEND=postgres` (the default) but `DATABASE_URL`
+> is not set, the server logs a configuration error and **exits with code 1**
+> rather than starting in a degraded state. To run without a database, set
+> `SERVING_BACKEND=purview` explicitly.
+
+**Versioned migrations (optional)**
+
+The runtime bootstraps the schema automatically. Operators who want managed
+migrations can use Alembic (the `DATABASE_URL` env var is read by `alembic/env.py`):
+
+```bash
+uv run alembic revision --autogenerate -m "describe change"
+uv run alembic upgrade head
+```
 
 ---
 
@@ -119,7 +188,7 @@ The server exposes unauthenticated probe endpoints (they bypass inbound auth and
 | Endpoint | Purpose | Behavior |
 |----------|---------|----------|
 | `GET /healthz` | Liveness | `200` whenever the process is serving requests |
-| `GET /readyz` | Readiness | `200` when a Purview access token can be acquired, `503` otherwise |
+| `GET /readyz` | Readiness | `200` when a Purview token can be acquired (and, in `postgres` mode, the database is reachable and the first ETL extract has completed); `503` otherwise |
 
 Use `/healthz` for container liveness probes and `/readyz` for readiness/startup probes
 (Azure Container Apps health probes or Kubernetes `livenessProbe`/`readinessProbe`).
@@ -278,11 +347,22 @@ uv run ruff format src tests
 uv run mypy src
 ```
 
-### Integration tests (requires Purview)
+### Integration tests
+
+The Postgres-backed ETL and repository tests need a real PostgreSQL. They spin up
+a disposable `postgres:16` container via [testcontainers](https://testcontainers.com/)
+(needs Docker), or you can point them at an existing database:
 
 ```bash
-PURVIEW_ACCOUNT_NAME=your-account uv run pytest tests/integration
+# Uses Docker automatically:
+uv run pytest tests/integration
+
+# Or target an existing Postgres (async URL):
+PURVIEW_TEST_DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/purview_test \
+  uv run pytest tests/integration
 ```
+
+If neither Docker nor `PURVIEW_TEST_DATABASE_URL` is available, these tests skip.
 
 ---
 
