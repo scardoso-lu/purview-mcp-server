@@ -94,6 +94,12 @@ def build_container(settings: Settings) -> Container:
     governance_repo: IGovernanceRepository
 
     backend = settings.serving_backend
+    if backend not in ("postgres", "purview"):
+        # Reject typos like "postgre" rather than silently serving live (which is
+        # exactly the rate-limited path the cache exists to avoid).
+        raise ConfigurationError(
+            f"Unknown SERVING_BACKEND={backend!r}; expected 'postgres' or 'purview'."
+        )
     if backend == "postgres" and not settings.database_url:
         # Fail fast: postgres serving was requested but no database is configured.
         # The caller (__main__) turns this into a clean exit(1). To run without a

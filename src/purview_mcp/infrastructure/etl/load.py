@@ -255,17 +255,21 @@ class Loader:
         nodes: Sequence[DomainLineageNode],
         relations: Sequence[DomainLineageRelation],
     ) -> None:
-        node_rows: list[dict[str, Any]] = [
-            {
+        # Dedupe nodes by id: shared upstream/downstream nodes recur across
+        # per-asset lineage graphs, and a single INSERT ... ON CONFLICT DO UPDATE
+        # cannot touch the same primary key twice. Last occurrence wins.
+        node_by_id: dict[str, dict[str, Any]] = {}
+        for n in nodes:
+            if not n.id:
+                continue
+            node_by_id[n.id] = {
                 "id": n.id,
                 "name": n.name,
                 "asset_type": n.asset_type,
                 "qualified_name": n.qualified_name,
                 "last_seen_run_id": run_id,
             }
-            for n in nodes
-            if n.id
-        ]
+        node_rows = list(node_by_id.values())
         for batch in _chunk(node_rows, self._batch_size):
             async with self._sm.begin() as session:
                 await self._upsert(session, m.LineageNode, list(batch), ["id"])

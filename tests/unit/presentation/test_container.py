@@ -38,6 +38,12 @@ def test_postgres_without_database_url_raises() -> None:
         build_container(Settings(purview_account_name="acct", serving_backend="postgres"))
 
 
+def test_unknown_serving_backend_raises() -> None:
+    # A typo like "postgre" must fail fast, not silently serve live.
+    with pytest.raises(ConfigurationError):
+        build_container(Settings(purview_account_name="acct", serving_backend="postgre"))
+
+
 def test_etl_disabled_keeps_db_without_scheduler() -> None:
     container = build_container(
         Settings(

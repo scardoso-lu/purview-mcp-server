@@ -96,6 +96,9 @@ async def test_upsert_lineage_dedupes_relations(sessionmaker) -> None:  # noqa: 
     nodes = [
         LineageNode(id="a", name="A", asset_type="t", qualified_name="qa"),
         LineageNode(id="b", name="B", asset_type="t", qualified_name="qb"),
+        # Duplicate node id (shared across per-asset lineage graphs); must not
+        # crash the single ON CONFLICT upsert, and last occurrence wins.
+        LineageNode(id="a", name="A2", asset_type="t", qualified_name="qa"),
     ]
     relations = [
         LineageRelation(from_id="a", to_id="b", relation_type="x"),
@@ -105,6 +108,9 @@ async def test_upsert_lineage_dedupes_relations(sessionmaker) -> None:  # noqa: 
 
     assert await _count(sessionmaker, m.LineageNode) == 2
     assert await _count(sessionmaker, m.LineageRelation) == 1
+    async with sessionmaker() as session:
+        node = await session.get(m.LineageNode, "a")
+        assert node.name == "A2"  # last write wins
 
 
 async def test_watermark_tracks_successful_runs(sessionmaker) -> None:  # noqa: ANN001
