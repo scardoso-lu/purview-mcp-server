@@ -13,7 +13,9 @@ class AssetOwner(BaseModel):
 
     @classmethod
     def _mock(cls, **overrides: Any) -> AssetOwner:
-        return cls(**{"id": "owner-1", "display_name": "Alice", "contact_type": "Owner", **overrides})
+        return cls(
+            **{"id": "owner-1", "display_name": "Alice", "contact_type": "Owner", **overrides}
+        )
 
 
 class DataQualityMetric(BaseModel):
