@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -7,11 +11,19 @@ class AssetOwner(BaseModel):
     contact_type: str  # "Expert" | "Owner"
     email: str | None = None
 
+    @classmethod
+    def _mock(cls, **overrides: Any) -> AssetOwner:
+        return cls(**{"id": "owner-1", "display_name": "Alice", "contact_type": "Owner", **overrides})
+
 
 class DataQualityMetric(BaseModel):
     name: str
     value: float | None = None
     status: str | None = None
+
+    @classmethod
+    def _mock(cls, **overrides: Any) -> DataQualityMetric:
+        return cls(**{"name": "completeness", "value": 0.95, **overrides})
 
 
 class Asset(BaseModel):
@@ -30,3 +42,15 @@ class Asset(BaseModel):
 
     def has_description(self) -> bool:
         return bool(self.description and self.description.strip())
+
+    @classmethod
+    def _mock(cls, **overrides: Any) -> Asset:
+        return cls(
+            **{
+                "id": "asset-guid",
+                "name": "Test Asset",
+                "asset_type": "azure_sql_table",
+                "qualified_name": "mssql://server/db/schema/table",
+                **overrides,
+            }
+        )

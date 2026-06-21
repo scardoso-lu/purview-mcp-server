@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -5,6 +9,10 @@ class DataProductOwner(BaseModel):
     id: str
     display_name: str | None = None
     email: str | None = None
+
+    @classmethod
+    def _mock(cls, **overrides: Any) -> DataProductOwner:
+        return cls(**{"id": "owner-1", "display_name": "Alice", **overrides})
 
 
 class DataProduct(BaseModel):
@@ -18,3 +26,7 @@ class DataProduct(BaseModel):
     asset_count: int = 0
     tags: list[str] = Field(default_factory=list)
     data_product_type: str | None = None
+
+    @classmethod
+    def _mock(cls, **overrides: Any) -> DataProduct:
+        return cls(**{"id": "dp-1", "name": "Test Data Product", "status": "Active", **overrides})

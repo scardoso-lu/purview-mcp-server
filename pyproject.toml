@@ -63,9 +63,24 @@ mypy_path = "src"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 addopts = "-v --tb=short"
 
 [tool.coverage.run]
 source = ["src"]
 omit = ["tests/*"]
+
+[tool.coverage.report]
+omit = [
+    "src/purview_mcp/__main__.py",
+    "src/purview_mcp/config/*",
+    "src/purview_mcp/application/dto/*",
+    "src/purview_mcp/presentation/mcp/tools/*",
+    "src/purview_mcp/infrastructure/telemetry.py",
+]
+exclude_also = [
+    "@(abc\\.)?abstractmethod",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
