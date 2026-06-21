@@ -3,12 +3,12 @@ import pytest
 import respx
 from pytest_mock import MockerFixture
 
-from purview_mcp.infrastructure.services.base_client import BaseClient
-from purview_mcp.utils.exc import (
+from purview_mcp.domain.exceptions import (
     AssetNotFoundError,
     PurviewAPIError,
     RateLimitError,
 )
+from purview_mcp.infrastructure.services.base_client import BaseClient
 
 _BASE_URL = "https://test.purview.azure.com"
 

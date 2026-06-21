@@ -4,10 +4,12 @@ from mcp.server.fastmcp import FastMCP
 from pydantic import Field
 
 from purview_mcp.application.use_cases.lineage.get_asset_lineage import GetAssetLineageUseCase
+from purview_mcp.presentation.mcp.error_handler import handle_tool_errors
 
 
 def register(mcp: FastMCP, use_case: GetAssetLineageUseCase) -> None:
     @mcp.tool()
+    @handle_tool_errors
     async def get_asset_lineage(
         asset_id: str,
         direction: Literal["BOTH", "INPUT", "OUTPUT"] = "BOTH",

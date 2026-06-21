@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 from purview_mcp.domain.entities.asset import Asset
 
@@ -8,6 +9,17 @@ class ScoredAsset:
     asset: Asset
     score: int
     explanation: str
+
+    @classmethod
+    def _mock(cls, **overrides: Any) -> "ScoredAsset":
+        return cls(
+            **{
+                "asset": Asset._mock(),
+                "score": 3,
+                "explanation": "Certified endorsement",
+                **overrides,
+            }
+        )
 
 
 def score_asset(asset: Asset) -> ScoredAsset:

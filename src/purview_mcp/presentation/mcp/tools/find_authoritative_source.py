@@ -6,10 +6,12 @@ from pydantic import Field
 from purview_mcp.application.use_cases.catalog.find_authoritative_source import (
     FindAuthoritativeSourceUseCase,
 )
+from purview_mcp.presentation.mcp.error_handler import handle_tool_errors
 
 
 def register(mcp: FastMCP, use_case: FindAuthoritativeSourceUseCase) -> None:
     @mcp.tool()
+    @handle_tool_errors
     async def find_authoritative_source(
         concept: str,
         limit: Annotated[int, Field(ge=1, le=50)] = 10,

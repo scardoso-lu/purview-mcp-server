@@ -1,7 +1,7 @@
-from typing import Any
+from typing import Any, Literal
 
 from purview_mcp.domain.entities.lineage import LineageGraph, LineageNode, LineageRelation
-from purview_mcp.infrastructure.repositories.contract import LineageRepositoryInterface
+from purview_mcp.domain.repositories.interfaces import LineageRepositoryInterface
 from purview_mcp.infrastructure.services.datamap_client import DataMapClient
 
 
@@ -21,7 +21,7 @@ class PurviewLineageRepository(LineageRepositoryInterface):
     async def get_lineage(
         self,
         guid: str,
-        direction: str = "BOTH",
+        direction: Literal["BOTH", "INPUT", "OUTPUT"] = "BOTH",
         depth: int = 3,
     ) -> LineageGraph:
         raw: Any = await self._client.get_lineage(guid, direction, depth)

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -10,7 +10,7 @@ class GlossaryTerm(BaseModel):
     name: str
     qualified_name: str
     definition: str | None = None
-    status: str | None = None  # "Draft" | "Approved" | "Alert" | "Expired"
+    status: Literal["Draft", "Approved", "Alert", "Expired"] | None = None
     long_description: str | None = None
     examples: list[str] = Field(default_factory=list)
     synonyms: list[str] = Field(default_factory=list)

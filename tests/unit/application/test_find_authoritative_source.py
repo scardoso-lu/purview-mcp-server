@@ -20,7 +20,8 @@ async def test_certified_asset_is_selected_as_authoritative(
     result = await use_case.execute("customer")
 
     assert result is not None
-    assert result.asset.id == certified_asset.id
+    assert result.asset is not None
+    assert result.asset["id"] == certified_asset.id
     assert result.score > 0
     assert "Certified" in result.explanation
 
@@ -51,5 +52,6 @@ async def test_alternatives_exclude_top_result(
     result = await use_case.execute("customer")
 
     assert result is not None
-    alternative_ids = [a.id for a in result.alternatives]
-    assert result.asset.id not in alternative_ids
+    assert result.asset is not None
+    alternative_ids = [a["id"] for a in result.alternatives]
+    assert result.asset["id"] not in alternative_ids

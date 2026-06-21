@@ -1,6 +1,6 @@
 from purview_mcp.application.dto.asset_dto import AuthoritativeSourceDto
+from purview_mcp.domain.repositories.interfaces import CatalogRepositoryInterface
 from purview_mcp.domain.services.scoring import rank_assets
-from purview_mcp.infrastructure.repositories.contract import CatalogRepositoryInterface
 
 
 class FindAuthoritativeSourceUseCase:
@@ -25,8 +25,8 @@ class FindAuthoritativeSourceUseCase:
 
         return AuthoritativeSourceDto(
             found=True,
-            asset=best.asset,
+            asset=best.asset.model_dump(),
             score=best.score,
             explanation=explanation,
-            alternatives=[s.asset for s in ranked[1:5]],
+            alternatives=[s.asset.model_dump() for s in ranked[1:5]],
         )

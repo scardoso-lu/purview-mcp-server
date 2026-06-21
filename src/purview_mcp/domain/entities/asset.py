@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 class AssetOwner(BaseModel):
     id: str
     display_name: str
-    contact_type: str  # "Expert" | "Owner"
+    contact_type: Literal["Expert", "Owner"]
     email: str | None = None
 
     @classmethod
@@ -33,7 +33,7 @@ class Asset(BaseModel):
     description: str | None = None
     owners: list[AssetOwner] = Field(default_factory=list)
     classification: list[str] = Field(default_factory=list)
-    endorsement: str | None = None  # "Certified" | "Promoted" | None
+    endorsement: Literal["Certified", "Promoted"] | None = None
     domain: str | None = None
     tags: list[str] = Field(default_factory=list)
     qualified_name: str

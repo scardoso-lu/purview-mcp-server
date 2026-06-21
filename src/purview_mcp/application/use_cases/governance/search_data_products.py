@@ -1,5 +1,5 @@
 from purview_mcp.domain.entities.data_product import DataProduct
-from purview_mcp.infrastructure.repositories.contract import GovernanceRepositoryInterface
+from purview_mcp.domain.repositories.interfaces import GovernanceRepositoryInterface
 
 
 class SearchDataProductsUseCase:

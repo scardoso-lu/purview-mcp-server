@@ -6,12 +6,8 @@ import httpx
 import structlog
 from opentelemetry import trace
 
+from purview_mcp.domain.exceptions import AssetNotFoundError, PurviewAPIError, RateLimitError
 from purview_mcp.infrastructure.services.azure_credential import PurviewCredentialProvider
-from purview_mcp.utils.exc import (
-    AssetNotFoundError,
-    PurviewAPIError,
-    RateLimitError,
-)
 
 logger = structlog.get_logger(__name__)
 _tracer = trace.get_tracer("purview_mcp.client")

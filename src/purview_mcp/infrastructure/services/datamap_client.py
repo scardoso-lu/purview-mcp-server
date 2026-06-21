@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 
 from purview_mcp.infrastructure.services.azure_credential import PurviewCredentialProvider
 from purview_mcp.infrastructure.services.base_client import BaseClient
@@ -47,7 +47,7 @@ class DataMapClient(BaseClient):
     async def get_lineage(
         self,
         guid: str,
-        direction: str = "BOTH",
+        direction: Literal["BOTH", "INPUT", "OUTPUT"] = "BOTH",
         depth: int = 3,
     ) -> Any:
         return await self.get(

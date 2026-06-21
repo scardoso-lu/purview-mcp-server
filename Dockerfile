@@ -46,4 +46,7 @@ COPY src/ ./src/
 COPY tests/ ./tests/
 RUN uv sync --frozen
 
+RUN adduser --disabled-password --gecos "" appuser && chown -R appuser /app
+USER appuser
+
 CMD ["uv", "run", "pytest", "tests/unit", "-v"]

@@ -1,10 +1,12 @@
 from collections.abc import Callable
 
 from purview_mcp.domain.entities.asset import Asset
-from purview_mcp.infrastructure.repositories.contract import CatalogRepositoryInterface
+from purview_mcp.domain.repositories.interfaces import CatalogRepositoryInterface
 
 # ponytail: client-side description filter — Purview search API has no "has description"
 # predicate; replace when Purview adds native userDescription:* query syntax.
+# ponytail: extracted at 2 call sites (Rule of Three says wait for 3) because the
+# pagination loop is non-trivial enough that duplication would be harder to maintain.
 _MAX_PAGE_SIZE = 1000
 _MAX_RAW_SCAN = 10_000
 

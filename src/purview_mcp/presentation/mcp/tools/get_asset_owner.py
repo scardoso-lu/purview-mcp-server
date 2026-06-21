@@ -3,10 +3,12 @@ from typing import Any
 from mcp.server.fastmcp import FastMCP
 
 from purview_mcp.application.use_cases.catalog.get_asset_owner import GetAssetOwnerUseCase
+from purview_mcp.presentation.mcp.error_handler import handle_tool_errors
 
 
 def register(mcp: FastMCP, use_case: GetAssetOwnerUseCase) -> None:
     @mcp.tool()
+    @handle_tool_errors
     async def get_asset_owner(asset_id: str) -> dict[str, Any]:
         """Return business and technical owners for a Purview asset.
 

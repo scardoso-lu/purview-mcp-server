@@ -1,5 +1,7 @@
+from typing import Literal
+
 from purview_mcp.domain.entities.lineage import LineageGraph
-from purview_mcp.infrastructure.repositories.contract import LineageRepositoryInterface
+from purview_mcp.domain.repositories.interfaces import LineageRepositoryInterface
 
 
 class GetAssetLineageUseCase:
@@ -9,7 +11,7 @@ class GetAssetLineageUseCase:
     async def execute(
         self,
         guid: str,
-        direction: str = "BOTH",
+        direction: Literal["BOTH", "INPUT", "OUTPUT"] = "BOTH",
         depth: int = 3,
     ) -> LineageGraph:
         return await self._lineage.get_lineage(guid, direction, depth)

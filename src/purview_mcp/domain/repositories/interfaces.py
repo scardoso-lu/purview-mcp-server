@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
+from typing import Literal
 
 from purview_mcp.domain.entities.asset import Asset
 from purview_mcp.domain.entities.data_product import DataProduct
@@ -49,7 +52,7 @@ class LineageRepositoryInterface(ABC):
     async def get_lineage(
         self,
         guid: str,
-        direction: str = "BOTH",
+        direction: Literal["BOTH", "INPUT", "OUTPUT"] = "BOTH",
         depth: int = 3,
     ) -> LineageGraph:
         raise NotImplementedError

@@ -1,6 +1,6 @@
 from purview_mcp.application.services.asset_filter import search_assets_filtered
 from purview_mcp.domain.entities.asset import Asset
-from purview_mcp.infrastructure.repositories.contract import CatalogRepositoryInterface
+from purview_mcp.domain.repositories.interfaces import CatalogRepositoryInterface
 
 
 class SearchUndocumentedAssetsUseCase:

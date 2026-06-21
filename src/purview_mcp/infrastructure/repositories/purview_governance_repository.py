@@ -2,7 +2,7 @@ from typing import Any
 
 from purview_mcp.domain.entities.data_product import DataProduct, DataProductOwner
 from purview_mcp.domain.entities.glossary import GlossaryTerm
-from purview_mcp.infrastructure.repositories.contract import GovernanceRepositoryInterface
+from purview_mcp.domain.repositories.interfaces import GovernanceRepositoryInterface
 from purview_mcp.infrastructure.services.datamap_client import DataMapClient
 from purview_mcp.infrastructure.services.unified_catalog_client import UnifiedCatalogClient
 

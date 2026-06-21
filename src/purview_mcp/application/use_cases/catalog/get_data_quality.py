@@ -1,5 +1,5 @@
 from purview_mcp.domain.entities.asset import DataQualityMetric
-from purview_mcp.infrastructure.repositories.contract import CatalogRepositoryInterface
+from purview_mcp.domain.repositories.interfaces import CatalogRepositoryInterface
 
 
 class GetDataQualityUseCase:
