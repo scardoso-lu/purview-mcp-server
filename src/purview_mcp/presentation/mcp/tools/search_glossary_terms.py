@@ -3,7 +3,9 @@ from typing import Annotated, Any
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
 
-from purview_mcp.application.use_cases.governance.search_glossary_terms import SearchGlossaryTermsUseCase
+from purview_mcp.application.use_cases.governance.search_glossary_terms import (
+    SearchGlossaryTermsUseCase,
+)
 
 
 def register(mcp: FastMCP, use_case: SearchGlossaryTermsUseCase) -> None:

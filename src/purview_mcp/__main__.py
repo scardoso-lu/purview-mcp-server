@@ -7,12 +7,12 @@ import structlog
 import uvicorn
 from starlette.applications import Starlette
 
-from purview_mcp.presentation.middleware.inbound_auth import EntraIDAuthMiddleware
 from purview_mcp.config.settings import Settings
 from purview_mcp.infrastructure.telemetry import configure_telemetry
 from purview_mcp.presentation.container import build_container
 from purview_mcp.presentation.mcp.server import create_server
 from purview_mcp.presentation.middleware.health import HealthCheckEndpoints
+from purview_mcp.presentation.middleware.inbound_auth import EntraIDAuthMiddleware
 from purview_mcp.presentation.middleware.rate_limit import RateLimitMiddleware
 
 

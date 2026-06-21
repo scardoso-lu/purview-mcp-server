@@ -9,12 +9,12 @@ import os
 
 import pytest
 
-from purview_mcp.infrastructure.services.azure_credential import PurviewCredentialProvider
-from purview_mcp.infrastructure.services.datamap_client import DataMapClient
 from purview_mcp.config.settings import Settings
 from purview_mcp.infrastructure.repositories.purview_catalog_repository import (
     PurviewCatalogRepository,
 )
+from purview_mcp.infrastructure.services.azure_credential import PurviewCredentialProvider
+from purview_mcp.infrastructure.services.datamap_client import DataMapClient
 
 PURVIEW_CONFIGURED = bool(os.getenv("PURVIEW_ACCOUNT_NAME"))
 

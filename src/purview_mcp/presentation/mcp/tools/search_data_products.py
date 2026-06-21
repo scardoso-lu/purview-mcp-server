@@ -3,7 +3,9 @@ from typing import Annotated, Any
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
 
-from purview_mcp.application.use_cases.governance.search_data_products import SearchDataProductsUseCase
+from purview_mcp.application.use_cases.governance.search_data_products import (
+    SearchDataProductsUseCase,
+)
 
 
 def register(mcp: FastMCP, use_case: SearchDataProductsUseCase) -> None:
