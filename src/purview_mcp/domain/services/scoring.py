@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from purview_mcp.domain.entities.asset import Asset
 
 
-@dataclass
+@dataclass(frozen=True)
 class ScoredAsset:
     asset: Asset
     score: int
