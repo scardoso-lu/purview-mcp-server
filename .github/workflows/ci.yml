@@ -45,7 +45,7 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
       - name: Build Docker image
-        run: docker build -t purview-mcp-server:ci .
+        run: docker build --target production -t purview-mcp-server:ci .
 
       - name: Verify image starts and responds on /healthz
         run: |
