@@ -60,9 +60,8 @@ class PurviewGovernanceRepository(GovernanceRepositoryInterface):
     async def search_glossary_terms(
         self, query: str, limit: int = 25, offset: int = 0
     ) -> list[GlossaryTerm]:
-        # Keyword filtering happens client-side, so the API-level offset cannot be
-        # used directly. Over-fetch proportionally to (offset + limit) and slice the
-        # filtered matches — a best-effort approximation for small glossaries.
+        # ponytail: client-side keyword filter — Purview glossary API has no native search;
+        # acceptable for small glossaries (<5 000 terms); replace with server-side search if added.
         raw_terms: list[Any] = await self._datamap.list_glossary_terms(limit=(offset + limit) * 2)
         query_lower = query.lower()
         matched: list[dict[str, Any]] = [

@@ -117,5 +117,4 @@ class BaseClient:
                 log.error("purview.api.request_failed", error=str(exc), attempt=attempt)
                 if attempt >= _MAX_ATTEMPTS:
                     raise PurviewAPIError(str(exc)) from exc
-                # network error on a non-final attempt — sleep and retry
                 continue
