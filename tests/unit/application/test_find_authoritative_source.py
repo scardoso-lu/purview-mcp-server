@@ -4,7 +4,7 @@ from pytest_mock import MockerFixture
 from purview_mcp.application.use_cases.find_authoritative_source import (
     FindAuthoritativeSourceUseCase,
 )
-from purview_mcp.domain.models.asset import Asset
+from purview_mcp.domain.entities.asset import Asset
 
 
 @pytest.mark.asyncio
@@ -33,7 +33,8 @@ async def test_returns_none_when_no_assets_found(mocker: MockerFixture) -> None:
     use_case = FindAuthoritativeSourceUseCase(catalog=mock_repo)
     result = await use_case.execute("nonexistent concept")
 
-    assert result is None
+    assert result.found is False
+    assert result.asset is None
 
 
 @pytest.mark.asyncio

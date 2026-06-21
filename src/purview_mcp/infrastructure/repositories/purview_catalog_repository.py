@@ -1,7 +1,8 @@
 from typing import Any
 
-from purview_mcp.domain.models.asset import Asset, AssetOwner, DataQualityMetric
+from purview_mcp.domain.entities.asset import Asset, AssetOwner, DataQualityMetric
 from purview_mcp.infrastructure.clients.datamap_client import DataMapClient
+from purview_mcp.infrastructure.repositories.contract import CatalogRepositoryInterface
 
 
 def _parse_asset(raw: dict[str, Any]) -> Asset:
@@ -73,7 +74,7 @@ def _parse_search_result(hit: dict[str, Any]) -> Asset:
     )
 
 
-class PurviewCatalogRepository:
+class PurviewCatalogRepository(CatalogRepositoryInterface):
     def __init__(self, client: DataMapClient) -> None:
         self._client = client
 

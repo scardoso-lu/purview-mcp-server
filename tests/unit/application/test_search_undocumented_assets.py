@@ -4,7 +4,7 @@ from pytest_mock import MockerFixture
 from purview_mcp.application.use_cases.search_undocumented_assets import (
     SearchUndocumentedAssetsUseCase,
 )
-from purview_mcp.domain.models.asset import Asset
+from purview_mcp.domain.entities.asset import Asset
 
 
 @pytest.mark.asyncio

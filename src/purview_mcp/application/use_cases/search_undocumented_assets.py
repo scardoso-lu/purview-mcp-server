@@ -1,6 +1,6 @@
-from purview_mcp.application.use_cases.asset_search import search_assets_filtered
-from purview_mcp.domain.models.asset import Asset
-from purview_mcp.domain.ports.catalog_port import ICatalogRepository
+from purview_mcp.application.services.asset_filter import search_assets_filtered
+from purview_mcp.domain.entities.asset import Asset
+from purview_mcp.infrastructure.repositories.contract import CatalogRepositoryInterface
 
 
 class SearchUndocumentedAssetsUseCase:
@@ -9,7 +9,7 @@ class SearchUndocumentedAssetsUseCase:
     Complements SearchAssetsUseCase, which returns only documented assets.
     """
 
-    def __init__(self, catalog: ICatalogRepository) -> None:
+    def __init__(self, catalog: CatalogRepositoryInterface) -> None:
         self._catalog = catalog
 
     async def execute(

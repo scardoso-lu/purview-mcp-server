@@ -1,7 +1,8 @@
 from typing import Any
 
-from purview_mcp.domain.models.lineage import LineageGraph, LineageNode, LineageRelation
+from purview_mcp.domain.entities.lineage import LineageGraph, LineageNode, LineageRelation
 from purview_mcp.infrastructure.clients.datamap_client import DataMapClient
+from purview_mcp.infrastructure.repositories.contract import LineageRepositoryInterface
 
 
 def _parse_node(node: dict[str, Any]) -> LineageNode:
@@ -13,7 +14,7 @@ def _parse_node(node: dict[str, Any]) -> LineageNode:
     )
 
 
-class PurviewLineageRepository:
+class PurviewLineageRepository(LineageRepositoryInterface):
     def __init__(self, client: DataMapClient) -> None:
         self._client = client
 

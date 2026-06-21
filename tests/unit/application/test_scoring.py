@@ -1,5 +1,5 @@
 from purview_mcp.application.services.scoring import rank_assets, score_asset
-from purview_mcp.domain.models.asset import Asset
+from purview_mcp.domain.entities.asset import Asset
 
 
 def test_certified_asset_gets_highest_score(certified_asset: Asset) -> None:

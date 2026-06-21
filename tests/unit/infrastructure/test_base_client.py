@@ -3,7 +3,7 @@ import pytest
 import respx
 from pytest_mock import MockerFixture
 
-from purview_mcp.domain.exceptions import (
+from purview_mcp.utils.exc import (
     AssetNotFoundError,
     PurviewAPIError,
     RateLimitError,

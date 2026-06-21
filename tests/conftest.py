@@ -1,9 +1,9 @@
 import pytest
 
-from purview_mcp.domain.models.asset import Asset, AssetOwner
-from purview_mcp.domain.models.data_product import DataProduct, DataProductOwner
-from purview_mcp.domain.models.glossary import GlossaryTerm
-from purview_mcp.domain.models.lineage import LineageGraph, LineageNode
+from purview_mcp.domain.entities.asset import Asset, AssetOwner
+from purview_mcp.domain.entities.data_product import DataProduct, DataProductOwner
+from purview_mcp.domain.entities.glossary import GlossaryTerm
+from purview_mcp.domain.entities.lineage import LineageGraph, LineageNode
 
 
 @pytest.fixture

@@ -1,9 +1,9 @@
-from purview_mcp.domain.models.asset import AssetOwner
-from purview_mcp.domain.ports.catalog_port import ICatalogRepository
+from purview_mcp.domain.entities.asset import AssetOwner
+from purview_mcp.infrastructure.repositories.contract import CatalogRepositoryInterface
 
 
 class GetAssetOwnerUseCase:
-    def __init__(self, catalog: ICatalogRepository) -> None:
+    def __init__(self, catalog: CatalogRepositoryInterface) -> None:
         self._catalog = catalog
 
     async def execute(self, guid: str) -> list[AssetOwner]:

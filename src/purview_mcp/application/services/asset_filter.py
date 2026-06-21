@@ -1,7 +1,7 @@
 from collections.abc import Callable
 
-from purview_mcp.domain.models.asset import Asset
-from purview_mcp.domain.ports.catalog_port import ICatalogRepository
+from purview_mcp.domain.entities.asset import Asset
+from purview_mcp.infrastructure.repositories.contract import CatalogRepositoryInterface
 
 # Purview's search filter cannot express "has a description", so documented /
 # undocumented filtering happens client-side: raw result pages are fetched and
@@ -12,7 +12,7 @@ _MAX_RAW_SCAN = 10_000
 
 
 async def search_assets_filtered(
-    catalog: ICatalogRepository,
+    catalog: CatalogRepositoryInterface,
     query: str,
     limit: int,
     asset_type: str | None,

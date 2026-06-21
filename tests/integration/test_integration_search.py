@@ -11,7 +11,7 @@ import pytest
 
 from purview_mcp.infrastructure.auth.azure_credential import PurviewCredentialProvider
 from purview_mcp.infrastructure.clients.datamap_client import DataMapClient
-from purview_mcp.infrastructure.config.settings import Settings
+from purview_mcp.config.settings import Settings
 from purview_mcp.infrastructure.repositories.purview_catalog_repository import (
     PurviewCatalogRepository,
 )

@@ -6,7 +6,7 @@ import httpx
 import structlog
 from opentelemetry import trace
 
-from purview_mcp.domain.exceptions import (
+from purview_mcp.utils.exc import (
     AssetNotFoundError,
     PurviewAPIError,
     RateLimitError,

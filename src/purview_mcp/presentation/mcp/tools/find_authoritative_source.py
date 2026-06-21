@@ -26,12 +26,4 @@ def register(mcp: FastMCP, use_case: FindAuthoritativeSourceUseCase) -> None:
             limit: Number of candidate assets to evaluate (default 10, max 50).
         """
         result = await use_case.execute(concept, limit)
-        if result is None:
-            return {"found": False, "message": f"No assets found for concept: '{concept}'"}
-        return {
-            "found": True,
-            "authoritative_asset": result.asset.model_dump(),
-            "score": result.score,
-            "explanation": result.explanation,
-            "alternatives": [a.model_dump() for a in result.alternatives],
-        }
+        return result.model_dump()

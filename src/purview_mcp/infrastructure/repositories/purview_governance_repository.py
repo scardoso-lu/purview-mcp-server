@@ -1,9 +1,10 @@
 from typing import Any
 
-from purview_mcp.domain.models.data_product import DataProduct, DataProductOwner
-from purview_mcp.domain.models.glossary import GlossaryTerm
+from purview_mcp.domain.entities.data_product import DataProduct, DataProductOwner
+from purview_mcp.domain.entities.glossary import GlossaryTerm
 from purview_mcp.infrastructure.clients.datamap_client import DataMapClient
 from purview_mcp.infrastructure.clients.unified_catalog_client import UnifiedCatalogClient
+from purview_mcp.infrastructure.repositories.contract import GovernanceRepositoryInterface
 
 
 def _parse_glossary_term(raw: dict[str, Any]) -> GlossaryTerm:
@@ -47,7 +48,7 @@ def _parse_data_product(raw: dict[str, Any]) -> DataProduct:
     )
 
 
-class PurviewGovernanceRepository:
+class PurviewGovernanceRepository(GovernanceRepositoryInterface):
     def __init__(
         self,
         datamap: DataMapClient,

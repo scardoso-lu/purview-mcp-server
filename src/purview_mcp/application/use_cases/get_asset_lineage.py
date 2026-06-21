@@ -1,9 +1,9 @@
-from purview_mcp.domain.models.lineage import LineageGraph
-from purview_mcp.domain.ports.lineage_port import ILineageRepository
+from purview_mcp.domain.entities.lineage import LineageGraph
+from purview_mcp.infrastructure.repositories.contract import LineageRepositoryInterface
 
 
 class GetAssetLineageUseCase:
-    def __init__(self, lineage: ILineageRepository) -> None:
+    def __init__(self, lineage: LineageRepositoryInterface) -> None:
         self._lineage = lineage
 
     async def execute(

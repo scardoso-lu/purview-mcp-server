@@ -1,28 +1,21 @@
-from dataclasses import dataclass
-
-from purview_mcp.application.services.scoring import ScoredAsset, rank_assets
-from purview_mcp.domain.models.asset import Asset
-from purview_mcp.domain.ports.catalog_port import ICatalogRepository
-
-
-@dataclass
-class AuthoritativeSourceResult:
-    asset: Asset
-    score: int
-    explanation: str
-    alternatives: list[Asset]
+from purview_mcp.application.dto.asset_dto import AuthoritativeSourceDto
+from purview_mcp.application.services.scoring import rank_assets
+from purview_mcp.infrastructure.repositories.contract import CatalogRepositoryInterface
 
 
 class FindAuthoritativeSourceUseCase:
-    def __init__(self, catalog: ICatalogRepository) -> None:
+    def __init__(self, catalog: CatalogRepositoryInterface) -> None:
         self._catalog = catalog
 
-    async def execute(self, concept: str, limit: int = 10) -> AuthoritativeSourceResult | None:
+    async def execute(self, concept: str, limit: int = 10) -> AuthoritativeSourceDto:
         candidates = await self._catalog.search_assets(concept, limit=limit)
         if not candidates:
-            return None
+            return AuthoritativeSourceDto(
+                found=False,
+                message=f"No assets found for concept: '{concept}'",
+            )
 
-        ranked: list[ScoredAsset] = rank_assets(candidates)
+        ranked = rank_assets(candidates)
         best = ranked[0]
         explanation = (
             f"'{best.asset.name}' ranked highest (score={best.score}) because: "
@@ -32,7 +25,8 @@ class FindAuthoritativeSourceUseCase:
             else f"'{best.asset.name}' is the best match found (score={best.score})."
         )
 
-        return AuthoritativeSourceResult(
+        return AuthoritativeSourceDto(
+            found=True,
             asset=best.asset,
             score=best.score,
             explanation=explanation,

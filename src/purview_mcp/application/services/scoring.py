@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from purview_mcp.domain.models.asset import Asset
+from purview_mcp.domain.entities.asset import Asset
 
 
 @dataclass

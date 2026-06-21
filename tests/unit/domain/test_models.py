@@ -1,5 +1,5 @@
-from purview_mcp.domain.models.asset import Asset, AssetOwner
-from purview_mcp.domain.models.lineage import LineageGraph, LineageNode
+from purview_mcp.domain.entities.asset import Asset, AssetOwner
+from purview_mcp.domain.entities.lineage import LineageGraph, LineageNode
 
 
 def test_asset_model_defaults() -> None:
