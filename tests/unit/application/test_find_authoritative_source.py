@@ -1,7 +1,7 @@
 import pytest
 from pytest_mock import MockerFixture
 
-from purview_mcp.application.use_cases.find_authoritative_source import (
+from purview_mcp.application.use_cases.catalog.find_authoritative_source import (
     FindAuthoritativeSourceUseCase,
 )
 from purview_mcp.domain.entities.asset import Asset

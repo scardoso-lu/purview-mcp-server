@@ -2,7 +2,7 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from purview_mcp.application.use_cases.get_asset_details import GetAssetDetailsUseCase
+from purview_mcp.application.use_cases.catalog.get_asset_details import GetAssetDetailsUseCase
 
 
 def register(mcp: FastMCP, use_case: GetAssetDetailsUseCase) -> None:

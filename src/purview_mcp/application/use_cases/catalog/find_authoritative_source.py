@@ -1,5 +1,5 @@
 from purview_mcp.application.dto.asset_dto import AuthoritativeSourceDto
-from purview_mcp.application.services.scoring import rank_assets
+from purview_mcp.domain.services.scoring import rank_assets
 from purview_mcp.infrastructure.repositories.contract import CatalogRepositoryInterface
 
 

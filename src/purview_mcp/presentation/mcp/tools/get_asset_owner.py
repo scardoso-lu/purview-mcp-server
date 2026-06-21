@@ -2,7 +2,7 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from purview_mcp.application.use_cases.get_asset_owner import GetAssetOwnerUseCase
+from purview_mcp.application.use_cases.catalog.get_asset_owner import GetAssetOwnerUseCase
 
 
 def register(mcp: FastMCP, use_case: GetAssetOwnerUseCase) -> None:

@@ -2,7 +2,7 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from purview_mcp.application.use_cases.get_data_quality import GetDataQualityUseCase
+from purview_mcp.application.use_cases.catalog.get_data_quality import GetDataQualityUseCase
 
 
 def register(mcp: FastMCP, use_case: GetDataQualityUseCase) -> None:

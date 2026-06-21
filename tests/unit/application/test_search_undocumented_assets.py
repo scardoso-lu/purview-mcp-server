@@ -1,7 +1,7 @@
 import pytest
 from pytest_mock import MockerFixture
 
-from purview_mcp.application.use_cases.search_undocumented_assets import (
+from purview_mcp.application.use_cases.catalog.search_undocumented_assets import (
     SearchUndocumentedAssetsUseCase,
 )
 from purview_mcp.domain.entities.asset import Asset

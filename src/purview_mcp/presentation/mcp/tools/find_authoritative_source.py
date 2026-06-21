@@ -3,7 +3,7 @@ from typing import Annotated, Any
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
 
-from purview_mcp.application.use_cases.find_authoritative_source import (
+from purview_mcp.application.use_cases.catalog.find_authoritative_source import (
     FindAuthoritativeSourceUseCase,
 )
 

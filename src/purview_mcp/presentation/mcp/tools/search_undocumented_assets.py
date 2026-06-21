@@ -3,7 +3,7 @@ from typing import Annotated, Any
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
 
-from purview_mcp.application.use_cases.search_undocumented_assets import (
+from purview_mcp.application.use_cases.catalog.search_undocumented_assets import (
     SearchUndocumentedAssetsUseCase,
 )
 

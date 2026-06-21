@@ -3,7 +3,7 @@ from typing import Annotated, Any, Literal
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
 
-from purview_mcp.application.use_cases.get_asset_lineage import GetAssetLineageUseCase
+from purview_mcp.application.use_cases.lineage.get_asset_lineage import GetAssetLineageUseCase
 
 
 def register(mcp: FastMCP, use_case: GetAssetLineageUseCase) -> None:
