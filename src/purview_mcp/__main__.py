@@ -14,6 +14,7 @@ from purview_mcp.presentation.mcp.server import create_server
 from purview_mcp.presentation.middleware.health import HealthCheckEndpoints
 from purview_mcp.presentation.middleware.inbound_auth import EntraIDAuthMiddleware
 from purview_mcp.presentation.middleware.rate_limit import RateLimitMiddleware
+from purview_mcp.shared.observability import Logger
 
 
 def _configure_logging(level: str) -> None:
@@ -37,7 +38,7 @@ def run() -> None:
     _configure_logging(settings.log_level)
     tracer_provider = configure_telemetry(settings)
 
-    log = structlog.get_logger("purview_mcp")
+    log = Logger(service="purview-mcp-server")
     log.info(
         "purview_mcp.starting",
         account=settings.purview_account_name,

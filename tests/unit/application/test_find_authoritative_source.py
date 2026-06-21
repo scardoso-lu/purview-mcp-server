@@ -5,6 +5,7 @@ from purview_mcp.application.use_cases.catalog.find_authoritative_source import 
     FindAuthoritativeSourceUseCase,
 )
 from purview_mcp.domain.entities.asset import Asset
+from purview_mcp.shared.observability import Logger
 
 
 @pytest.mark.asyncio
@@ -12,11 +13,12 @@ async def test_certified_asset_is_selected_as_authoritative(
     mocker: MockerFixture,
     certified_asset: Asset,
     uncertified_asset: Asset,
+    logger: Logger,
 ) -> None:
     mock_repo = mocker.AsyncMock()
     mock_repo.search_assets.return_value = [uncertified_asset, certified_asset]
 
-    use_case = FindAuthoritativeSourceUseCase(catalog=mock_repo)
+    use_case = FindAuthoritativeSourceUseCase(catalog=mock_repo, log=logger)
     result = await use_case.execute("customer")
 
     assert result is not None
@@ -27,11 +29,11 @@ async def test_certified_asset_is_selected_as_authoritative(
 
 
 @pytest.mark.asyncio
-async def test_returns_none_when_no_assets_found(mocker: MockerFixture) -> None:
+async def test_returns_none_when_no_assets_found(mocker: MockerFixture, logger: Logger) -> None:
     mock_repo = mocker.AsyncMock()
     mock_repo.search_assets.return_value = []
 
-    use_case = FindAuthoritativeSourceUseCase(catalog=mock_repo)
+    use_case = FindAuthoritativeSourceUseCase(catalog=mock_repo, log=logger)
     result = await use_case.execute("nonexistent concept")
 
     assert result.found is False
@@ -44,11 +46,12 @@ async def test_alternatives_exclude_top_result(
     certified_asset: Asset,
     promoted_asset: Asset,
     uncertified_asset: Asset,
+    logger: Logger,
 ) -> None:
     mock_repo = mocker.AsyncMock()
     mock_repo.search_assets.return_value = [uncertified_asset, promoted_asset, certified_asset]
 
-    use_case = FindAuthoritativeSourceUseCase(catalog=mock_repo)
+    use_case = FindAuthoritativeSourceUseCase(catalog=mock_repo, log=logger)
     result = await use_case.execute("customer")
 
     assert result is not None

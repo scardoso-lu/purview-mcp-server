@@ -1,9 +1,17 @@
+from unittest.mock import MagicMock
+
 import pytest
 
 from purview_mcp.domain.entities.asset import Asset, AssetOwner
 from purview_mcp.domain.entities.data_product import DataProduct, DataProductOwner
 from purview_mcp.domain.entities.glossary import GlossaryTerm
 from purview_mcp.domain.entities.lineage import LineageGraph, LineageNode
+from purview_mcp.shared.observability import Logger
+
+
+@pytest.fixture
+def logger() -> Logger:
+    return MagicMock(spec=Logger)  # type: ignore[return-value]
 
 
 @pytest.fixture

@@ -30,6 +30,7 @@ from purview_mcp.infrastructure.repositories.purview_lineage_repository import (
 from purview_mcp.infrastructure.services.azure_credential import PurviewCredentialProvider
 from purview_mcp.infrastructure.services.datamap_client import DataMapClient
 from purview_mcp.infrastructure.services.unified_catalog_client import UnifiedCatalogClient
+from purview_mcp.shared.observability import Logger
 
 
 @dataclass
@@ -55,6 +56,7 @@ class Container:
 
 
 def build_container(settings: Settings) -> Container:
+    log = Logger(service="purview-mcp-server")
     credential = PurviewCredentialProvider()
     datamap = DataMapClient(settings.purview_endpoint, credential, settings.request_timeout_seconds)
     unified = UnifiedCatalogClient(
@@ -66,15 +68,15 @@ def build_container(settings: Settings) -> Container:
     governance_repo = PurviewGovernanceRepository(datamap, unified)
 
     return Container(
-        search_assets=SearchAssetsUseCase(catalog_repo),
-        search_undocumented_assets=SearchUndocumentedAssetsUseCase(catalog_repo),
-        get_asset_details=GetAssetDetailsUseCase(catalog_repo),
-        get_asset_lineage=GetAssetLineageUseCase(lineage_repo),
-        get_asset_owner=GetAssetOwnerUseCase(catalog_repo),
-        search_glossary_terms=SearchGlossaryTermsUseCase(governance_repo),
-        search_data_products=SearchDataProductsUseCase(governance_repo),
-        find_authoritative_source=FindAuthoritativeSourceUseCase(catalog_repo),
-        get_data_quality=GetDataQualityUseCase(catalog_repo),
+        search_assets=SearchAssetsUseCase(catalog_repo, log=log),
+        search_undocumented_assets=SearchUndocumentedAssetsUseCase(catalog_repo, log=log),
+        get_asset_details=GetAssetDetailsUseCase(catalog_repo, log=log),
+        get_asset_lineage=GetAssetLineageUseCase(lineage_repo, log=log),
+        get_asset_owner=GetAssetOwnerUseCase(catalog_repo, log=log),
+        search_glossary_terms=SearchGlossaryTermsUseCase(governance_repo, log=log),
+        search_data_products=SearchDataProductsUseCase(governance_repo, log=log),
+        find_authoritative_source=FindAuthoritativeSourceUseCase(catalog_repo, log=log),
+        get_data_quality=GetDataQualityUseCase(catalog_repo, log=log),
         datamap_client=datamap,
         unified_catalog_client=unified,
         credential=credential,
