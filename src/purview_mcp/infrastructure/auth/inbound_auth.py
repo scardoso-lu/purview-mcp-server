@@ -58,7 +58,7 @@ class EntraIDAuthMiddleware:
             return
         except (jwt.InvalidAudienceError, jwt.InvalidIssuerError) as exc:
             logger.warning("inbound_auth.token_claims_invalid", error=str(exc))
-            await _send_401(send, "invalid_token", str(exc))
+            await _send_401(send, "invalid_token", "Token validation failed")
             return
         except Exception as exc:
             logger.warning("inbound_auth.token_validation_failed", error=type(exc).__name__)
