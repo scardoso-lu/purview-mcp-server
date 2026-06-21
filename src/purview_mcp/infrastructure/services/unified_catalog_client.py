@@ -1,7 +1,7 @@
 from typing import Any
 
-from purview_mcp.infrastructure.auth.azure_credential import PurviewCredentialProvider
-from purview_mcp.infrastructure.clients.base_client import BaseClient
+from purview_mcp.infrastructure.services.azure_credential import PurviewCredentialProvider
+from purview_mcp.infrastructure.services.base_client import BaseClient
 
 _DATA_PRODUCTS_API_VERSION = "2026-03-20-preview"
 _CATALOG_BASE = "/datagovernance/catalog"

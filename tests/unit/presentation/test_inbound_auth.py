@@ -8,7 +8,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from jwt import PyJWKClient
 from pytest_mock import MockerFixture
 
-from purview_mcp.infrastructure.auth.inbound_auth import EntraIDAuthMiddleware
+from purview_mcp.presentation.middleware.inbound_auth import EntraIDAuthMiddleware
 
 _TENANT_ID = "11111111-1111-1111-1111-111111111111"
 _AUDIENCE = "api://test-server-app"

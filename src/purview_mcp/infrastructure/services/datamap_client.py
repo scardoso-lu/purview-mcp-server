@@ -1,7 +1,7 @@
 from typing import Any
 
-from purview_mcp.infrastructure.auth.azure_credential import PurviewCredentialProvider
-from purview_mcp.infrastructure.clients.base_client import BaseClient
+from purview_mcp.infrastructure.services.azure_credential import PurviewCredentialProvider
+from purview_mcp.infrastructure.services.base_client import BaseClient
 
 _SEARCH_API_VERSION = "2023-09-01"
 _ATLAS_BASE = "/datamap/api/atlas/v2"

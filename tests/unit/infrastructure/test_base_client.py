@@ -8,7 +8,7 @@ from purview_mcp.utils.exc import (
     PurviewAPIError,
     RateLimitError,
 )
-from purview_mcp.infrastructure.clients.base_client import BaseClient
+from purview_mcp.infrastructure.services.base_client import BaseClient
 
 _BASE_URL = "https://test.purview.azure.com"
 
@@ -20,7 +20,7 @@ class FakeCredential:
 
 @pytest.fixture
 def client(mocker: MockerFixture) -> BaseClient:
-    mocker.patch("purview_mcp.infrastructure.clients.base_client.asyncio.sleep")
+    mocker.patch("purview_mcp.infrastructure.services.base_client.asyncio.sleep")
     return BaseClient(_BASE_URL, FakeCredential())  # type: ignore[arg-type]
 
 

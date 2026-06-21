@@ -11,7 +11,7 @@ from purview_mcp.utils.exc import (
     PurviewAPIError,
     RateLimitError,
 )
-from purview_mcp.infrastructure.auth.azure_credential import PurviewCredentialProvider
+from purview_mcp.infrastructure.services.azure_credential import PurviewCredentialProvider
 
 logger = structlog.get_logger(__name__)
 _tracer = trace.get_tracer("purview_mcp.client")

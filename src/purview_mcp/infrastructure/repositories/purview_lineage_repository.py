@@ -1,7 +1,7 @@
 from typing import Any
 
 from purview_mcp.domain.entities.lineage import LineageGraph, LineageNode, LineageRelation
-from purview_mcp.infrastructure.clients.datamap_client import DataMapClient
+from purview_mcp.infrastructure.services.datamap_client import DataMapClient
 from purview_mcp.infrastructure.repositories.contract import LineageRepositoryInterface
 
 
