@@ -71,7 +71,7 @@ async def test_readiness_unready_when_token_fails(mocker: MockerFixture) -> None
     assert status == 503
     payload = json.loads(body)
     assert payload["status"] == "unready"
-    assert payload["reason"] == "RuntimeError"
+    assert "reason" not in payload
 
 
 @pytest.mark.asyncio
@@ -85,7 +85,7 @@ async def test_readiness_unready_on_timeout(mocker: MockerFixture) -> None:
     container.credential.get_token = _hang
     status, body = await _call(middleware, _scope("/readyz"))
     assert status == 503
-    assert json.loads(body)["reason"] == "TimeoutError"
+    assert "reason" not in json.loads(body)
 
 
 @pytest.mark.asyncio

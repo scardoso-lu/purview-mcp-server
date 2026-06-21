@@ -2,11 +2,13 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from purview_mcp.application.use_cases.get_asset_details import GetAssetDetailsUseCase
+from purview_mcp.application.use_cases.catalog.get_asset_details import GetAssetDetailsUseCase
+from purview_mcp.presentation.mcp.error_handler import handle_tool_errors
 
 
 def register(mcp: FastMCP, use_case: GetAssetDetailsUseCase) -> None:
     @mcp.tool()
+    @handle_tool_errors
     async def get_asset_details(asset_id: str) -> dict[str, Any]:
         """Retrieve full metadata for a specific Purview asset by its GUID.
 

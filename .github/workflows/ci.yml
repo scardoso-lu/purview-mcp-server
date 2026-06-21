@@ -12,14 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@e58605a9b6da7c637471fab8847a5e5a6b8df081  # v5
         with:
           python-version: "3.12"
 
       - name: Install dependencies
         run: uv sync
+
+      - name: Dependency vulnerability audit
+        run: uv run pip-audit
 
       - name: Lint (ruff check)
         run: uv run ruff check src tests
@@ -39,10 +42,10 @@ jobs:
     needs: lint-typecheck-test
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
       - name: Build Docker image
-        run: docker build -t purview-mcp-server:ci .
+        run: docker build --target production -t purview-mcp-server:ci .
 
       - name: Verify image starts and responds on /healthz
         run: |

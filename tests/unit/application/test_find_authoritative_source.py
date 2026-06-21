@@ -1,10 +1,10 @@
 import pytest
 from pytest_mock import MockerFixture
 
-from purview_mcp.application.use_cases.find_authoritative_source import (
+from purview_mcp.application.use_cases.catalog.find_authoritative_source import (
     FindAuthoritativeSourceUseCase,
 )
-from purview_mcp.domain.models.asset import Asset
+from purview_mcp.domain.entities.asset import Asset
 
 
 @pytest.mark.asyncio
@@ -20,7 +20,8 @@ async def test_certified_asset_is_selected_as_authoritative(
     result = await use_case.execute("customer")
 
     assert result is not None
-    assert result.asset.id == certified_asset.id
+    assert result.asset is not None
+    assert result.asset["id"] == certified_asset.id
     assert result.score > 0
     assert "Certified" in result.explanation
 
@@ -33,7 +34,8 @@ async def test_returns_none_when_no_assets_found(mocker: MockerFixture) -> None:
     use_case = FindAuthoritativeSourceUseCase(catalog=mock_repo)
     result = await use_case.execute("nonexistent concept")
 
-    assert result is None
+    assert result.found is False
+    assert result.asset is None
 
 
 @pytest.mark.asyncio
@@ -50,5 +52,6 @@ async def test_alternatives_exclude_top_result(
     result = await use_case.execute("customer")
 
     assert result is not None
-    alternative_ids = [a.id for a in result.alternatives]
-    assert result.asset.id not in alternative_ids
+    assert result.asset is not None
+    alternative_ids = [a["id"] for a in result.alternatives]
+    assert result.asset["id"] not in alternative_ids

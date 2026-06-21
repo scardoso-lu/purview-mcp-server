@@ -5,7 +5,7 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
-from purview_mcp.infrastructure.config.settings import Settings
+from purview_mcp.config.settings import Settings
 
 logger = structlog.get_logger(__name__)
 

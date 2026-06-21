@@ -3,13 +3,15 @@ from typing import Annotated, Any
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
 
-from purview_mcp.application.use_cases.search_undocumented_assets import (
+from purview_mcp.application.use_cases.catalog.search_undocumented_assets import (
     SearchUndocumentedAssetsUseCase,
 )
+from purview_mcp.presentation.mcp.error_handler import handle_tool_errors
 
 
 def register(mcp: FastMCP, use_case: SearchUndocumentedAssetsUseCase) -> None:
     @mcp.tool()
+    @handle_tool_errors
     async def search_undocumented_assets(
         query: str,
         limit: Annotated[int, Field(ge=1, le=100)] = 10,

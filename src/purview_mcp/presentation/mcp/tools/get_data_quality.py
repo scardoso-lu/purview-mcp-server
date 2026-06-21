@@ -2,11 +2,13 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from purview_mcp.application.use_cases.get_data_quality import GetDataQualityUseCase
+from purview_mcp.application.use_cases.catalog.get_data_quality import GetDataQualityUseCase
+from purview_mcp.presentation.mcp.error_handler import handle_tool_errors
 
 
 def register(mcp: FastMCP, use_case: GetDataQualityUseCase) -> None:
     @mcp.tool()
+    @handle_tool_errors
     async def get_data_quality(asset_id: str) -> dict[str, Any]:
         """Return data quality metrics and scores for a Purview asset.
 

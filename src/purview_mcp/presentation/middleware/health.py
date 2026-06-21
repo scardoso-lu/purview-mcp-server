@@ -45,7 +45,7 @@ class HealthCheckEndpoints:
                 )
             except Exception as exc:
                 logger.warning("health.readiness_failed", error=type(exc).__name__)
-                await _send_json(send, 503, {"status": "unready", "reason": type(exc).__name__})
+                await _send_json(send, 503, {"status": "unready"})
                 return
             await _send_json(send, 200, {"status": "ready"})
             return

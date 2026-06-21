@@ -3,13 +3,15 @@ from typing import Annotated, Any
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
 
-from purview_mcp.application.use_cases.find_authoritative_source import (
+from purview_mcp.application.use_cases.catalog.find_authoritative_source import (
     FindAuthoritativeSourceUseCase,
 )
+from purview_mcp.presentation.mcp.error_handler import handle_tool_errors
 
 
 def register(mcp: FastMCP, use_case: FindAuthoritativeSourceUseCase) -> None:
     @mcp.tool()
+    @handle_tool_errors
     async def find_authoritative_source(
         concept: str,
         limit: Annotated[int, Field(ge=1, le=50)] = 10,
@@ -26,12 +28,4 @@ def register(mcp: FastMCP, use_case: FindAuthoritativeSourceUseCase) -> None:
             limit: Number of candidate assets to evaluate (default 10, max 50).
         """
         result = await use_case.execute(concept, limit)
-        if result is None:
-            return {"found": False, "message": f"No assets found for concept: '{concept}'"}
-        return {
-            "found": True,
-            "authoritative_asset": result.asset.model_dump(),
-            "score": result.score,
-            "explanation": result.explanation,
-            "alternatives": [a.model_dump() for a in result.alternatives],
-        }
+        return result.model_dump()

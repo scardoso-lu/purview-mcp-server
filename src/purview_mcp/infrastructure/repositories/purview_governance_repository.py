@@ -1,9 +1,10 @@
 from typing import Any
 
-from purview_mcp.domain.models.data_product import DataProduct, DataProductOwner
-from purview_mcp.domain.models.glossary import GlossaryTerm
-from purview_mcp.infrastructure.clients.datamap_client import DataMapClient
-from purview_mcp.infrastructure.clients.unified_catalog_client import UnifiedCatalogClient
+from purview_mcp.domain.entities.data_product import DataProduct, DataProductOwner
+from purview_mcp.domain.entities.glossary import GlossaryTerm
+from purview_mcp.domain.repositories.interfaces import GovernanceRepositoryInterface
+from purview_mcp.infrastructure.services.datamap_client import DataMapClient
+from purview_mcp.infrastructure.services.unified_catalog_client import UnifiedCatalogClient
 
 
 def _parse_glossary_term(raw: dict[str, Any]) -> GlossaryTerm:
@@ -47,7 +48,11 @@ def _parse_data_product(raw: dict[str, Any]) -> DataProduct:
     )
 
 
-class PurviewGovernanceRepository:
+_GLOSSARY_PAGE_SIZE = 200
+_GLOSSARY_MAX_SCAN = 5_000
+
+
+class PurviewGovernanceRepository(GovernanceRepositoryInterface):
     def __init__(
         self,
         datamap: DataMapClient,
@@ -59,17 +64,33 @@ class PurviewGovernanceRepository:
     async def search_glossary_terms(
         self, query: str, limit: int = 25, offset: int = 0
     ) -> list[GlossaryTerm]:
-        # Keyword filtering happens client-side, so the API-level offset cannot be
-        # used directly. Over-fetch proportionally to (offset + limit) and slice the
-        # filtered matches — a best-effort approximation for small glossaries.
-        raw_terms: list[Any] = await self._datamap.list_glossary_terms(limit=(offset + limit) * 2)
+        # ponytail: client-side keyword filter — Purview glossary API has no native search;
+        # acceptable for small glossaries (<5 000 terms); replace with server-side search if added.
         query_lower = query.lower()
-        matched: list[dict[str, Any]] = [
-            t
-            for t in raw_terms
-            if query_lower in (t.get("attributes", t).get("name", "")).lower()
-            or query_lower in (t.get("attributes", t).get("shortDescription", "") or "").lower()
-        ]
+        matched: list[dict[str, Any]] = []
+        scanned = 0
+        api_offset = 0
+
+        while scanned < _GLOSSARY_MAX_SCAN:
+            page: list[Any] = await self._datamap.list_glossary_terms(
+                limit=_GLOSSARY_PAGE_SIZE, offset=api_offset
+            )
+            if not page:
+                break
+            for t in page:
+                if (
+                    query_lower in (t.get("attributes", t).get("name", "")).lower()
+                    or query_lower
+                    in (t.get("attributes", t).get("shortDescription", "") or "").lower()
+                ):
+                    matched.append(t)
+                scanned += 1
+            if len(matched) >= offset + limit:
+                break
+            api_offset += len(page)
+            if len(page) < _GLOSSARY_PAGE_SIZE:
+                break
+
         return [_parse_glossary_term(t) for t in matched[offset : offset + limit]]
 
     async def search_data_products(

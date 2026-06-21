@@ -49,9 +49,9 @@ class RateLimitMiddleware:
             return
 
         window.append(now)
-        # Prune idle keys so the map doesn't grow unboundedly with one-off clients.
         if len(self._windows) > 1024:
-            for k in [k for k, w in self._windows.items() if not w]:
+            cutoff = now - _WINDOW_SECONDS
+            for k in [k for k, w in self._windows.items() if not w or w[-1] <= cutoff]:
                 del self._windows[k]
 
         await self._app(scope, receive, send)

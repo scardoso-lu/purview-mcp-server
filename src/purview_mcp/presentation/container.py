@@ -1,22 +1,23 @@
 from dataclasses import dataclass
 
-from purview_mcp.application.use_cases.find_authoritative_source import (
+from purview_mcp.application.use_cases.catalog.find_authoritative_source import (
     FindAuthoritativeSourceUseCase,
 )
-from purview_mcp.application.use_cases.get_asset_details import GetAssetDetailsUseCase
-from purview_mcp.application.use_cases.get_asset_lineage import GetAssetLineageUseCase
-from purview_mcp.application.use_cases.get_asset_owner import GetAssetOwnerUseCase
-from purview_mcp.application.use_cases.get_data_quality import GetDataQualityUseCase
-from purview_mcp.application.use_cases.search_assets import SearchAssetsUseCase
-from purview_mcp.application.use_cases.search_data_products import SearchDataProductsUseCase
-from purview_mcp.application.use_cases.search_glossary_terms import SearchGlossaryTermsUseCase
-from purview_mcp.application.use_cases.search_undocumented_assets import (
+from purview_mcp.application.use_cases.catalog.get_asset_details import GetAssetDetailsUseCase
+from purview_mcp.application.use_cases.catalog.get_asset_owner import GetAssetOwnerUseCase
+from purview_mcp.application.use_cases.catalog.get_data_quality import GetDataQualityUseCase
+from purview_mcp.application.use_cases.catalog.search_assets import SearchAssetsUseCase
+from purview_mcp.application.use_cases.catalog.search_undocumented_assets import (
     SearchUndocumentedAssetsUseCase,
 )
-from purview_mcp.infrastructure.auth.azure_credential import PurviewCredentialProvider
-from purview_mcp.infrastructure.clients.datamap_client import DataMapClient
-from purview_mcp.infrastructure.clients.unified_catalog_client import UnifiedCatalogClient
-from purview_mcp.infrastructure.config.settings import Settings
+from purview_mcp.application.use_cases.governance.search_data_products import (
+    SearchDataProductsUseCase,
+)
+from purview_mcp.application.use_cases.governance.search_glossary_terms import (
+    SearchGlossaryTermsUseCase,
+)
+from purview_mcp.application.use_cases.lineage.get_asset_lineage import GetAssetLineageUseCase
+from purview_mcp.config.settings import Settings
 from purview_mcp.infrastructure.repositories.purview_catalog_repository import (
     PurviewCatalogRepository,
 )
@@ -26,6 +27,9 @@ from purview_mcp.infrastructure.repositories.purview_governance_repository impor
 from purview_mcp.infrastructure.repositories.purview_lineage_repository import (
     PurviewLineageRepository,
 )
+from purview_mcp.infrastructure.services.azure_credential import PurviewCredentialProvider
+from purview_mcp.infrastructure.services.datamap_client import DataMapClient
+from purview_mcp.infrastructure.services.unified_catalog_client import UnifiedCatalogClient
 
 
 @dataclass

@@ -3,11 +3,15 @@ from typing import Annotated, Any
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
 
-from purview_mcp.application.use_cases.search_data_products import SearchDataProductsUseCase
+from purview_mcp.application.use_cases.governance.search_data_products import (
+    SearchDataProductsUseCase,
+)
+from purview_mcp.presentation.mcp.error_handler import handle_tool_errors
 
 
 def register(mcp: FastMCP, use_case: SearchDataProductsUseCase) -> None:
     @mcp.tool()
+    @handle_tool_errors
     async def search_data_products(
         query: str,
         limit: Annotated[int, Field(ge=1, le=100)] = 10,
