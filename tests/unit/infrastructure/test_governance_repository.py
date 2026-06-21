@@ -81,7 +81,7 @@ async def test_search_glossary_terms_filters_by_keyword(mocker: MockerFixture) -
     terms = await repo.search_glossary_terms("customer", limit=10)
 
     assert [t.name for t in terms] == ["Customer", "Revenue"]
-    datamap.list_glossary_terms.assert_called_once_with(limit=20)
+    datamap.list_glossary_terms.assert_called_once_with(limit=200, offset=0)
 
 
 @pytest.mark.asyncio
@@ -96,7 +96,7 @@ async def test_search_glossary_terms_applies_offset(mocker: MockerFixture) -> No
     terms = await repo.search_glossary_terms("customer", limit=1, offset=1)
 
     assert [t.name for t in terms] == ["Customer B"]
-    datamap.list_glossary_terms.assert_called_once_with(limit=4)
+    datamap.list_glossary_terms.assert_called_once_with(limit=200, offset=0)
 
 
 @pytest.mark.asyncio

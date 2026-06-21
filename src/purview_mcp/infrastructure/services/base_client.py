@@ -100,14 +100,24 @@ class BaseClient:
                             retry_in=next_delay,
                         )
                         continue
+                    log.error(
+                        "purview.api.upstream_error",
+                        status=response.status_code,
+                        body=response.text[:200],
+                    )
                     raise PurviewAPIError(
-                        f"Purview API error {response.status_code}: {response.text[:200]}",
+                        f"Purview API returned {response.status_code}",
                         status_code=response.status_code,
                     )
 
                 if response.is_error:
+                    log.warning(
+                        "purview.api.client_error",
+                        status=response.status_code,
+                        body=response.text[:200],
+                    )
                     raise PurviewAPIError(
-                        f"Purview API error {response.status_code}: {response.text[:200]}",
+                        f"Purview API returned {response.status_code}",
                         status_code=response.status_code,
                     )
 
@@ -116,5 +126,5 @@ class BaseClient:
             except (httpx.TimeoutException, httpx.TransportError) as exc:
                 log.error("purview.api.request_failed", error=str(exc), attempt=attempt)
                 if attempt >= _MAX_ATTEMPTS:
-                    raise PurviewAPIError(str(exc)) from exc
+                    raise PurviewAPIError("Purview API request failed") from exc
                 continue

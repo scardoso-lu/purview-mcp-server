@@ -18,10 +18,8 @@ class FindAuthoritativeSourceUseCase:
         ranked = rank_assets(candidates)
         best = ranked[0]
         explanation = (
-            f"'{best.asset.name}' ranked highest (score={best.score}) because: "
-            + ", ".join(best.reasons)
-            + "."
-            if best.reasons
+            f"'{best.asset.name}' ranked highest (score={best.score}) because: {best.explanation}."
+            if best.score > 0
             else f"'{best.asset.name}' is the best match found (score={best.score})."
         )
 

@@ -3,6 +3,7 @@ from typing import Any
 from purview_mcp.domain.entities.asset import Asset, AssetOwner, DataQualityMetric
 from purview_mcp.infrastructure.services.datamap_client import DataMapClient
 from purview_mcp.infrastructure.repositories.contract import CatalogRepositoryInterface
+from purview_mcp.utils.exc import PurviewAPIError
 
 
 def _parse_asset(raw: dict[str, Any]) -> Asset:
@@ -37,7 +38,7 @@ def _parse_asset(raw: dict[str, Any]) -> Asset:
         asset_type=raw.get("typeName", raw.get("entityType", "")),
         description=attrs.get("userDescription") or attrs.get("description"),
         owners=owners,
-        classification=[c.get("typeName", "") for c in raw.get("classifications", [])],
+        classification=[t for c in raw.get("classifications", []) if (t := c.get("typeName"))],
         endorsement=attrs.get("endorsement"),
         domain=attrs.get("domain"),
         tags=tags + (label_raw if isinstance(label_raw, list) else []),
@@ -48,7 +49,7 @@ def _parse_asset(raw: dict[str, Any]) -> Asset:
 
 
 def _parse_search_result(hit: dict[str, Any]) -> Asset:
-    """Parse a search result hit (different shape from entity detail)."""
+    # ponytail: search hits omit dataQualityScore — enrich via get_entity if data_quality is needed.
     contact_list: list[AssetOwner] = []
     for c in hit.get("contact", []):
         contact_list.append(
@@ -94,5 +95,7 @@ class PurviewCatalogRepository(CatalogRepositoryInterface):
 
     async def get_asset_by_id(self, guid: str) -> Asset:
         result: Any = await self._client.get_entity(guid)
-        entity: dict[str, Any] = result.get("entity", result)
+        if "entity" not in result:
+            raise PurviewAPIError(f"Unexpected response for entity {guid}: missing 'entity' key")
+        entity: dict[str, Any] = result["entity"]
         return _parse_asset(entity)

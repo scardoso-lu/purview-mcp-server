@@ -5,13 +5,13 @@ from purview_mcp.domain.entities.asset import Asset
 def test_certified_asset_gets_highest_score(certified_asset: Asset) -> None:
     scored = score_asset(certified_asset)
     assert scored.score >= 6  # certified(3) + owner(2) + description(1)
-    assert "Certified" in " ".join(scored.reasons)
+    assert "Certified" in scored.explanation
 
 
 def test_uncertified_no_owner_scores_zero(uncertified_asset: Asset) -> None:
     scored = score_asset(uncertified_asset)
     assert scored.score == 0
-    assert scored.reasons == []
+    assert scored.explanation == "no governance signals"
 
 
 def test_promoted_asset_scores_less_than_certified(

@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from purview_mcp.domain.entities.asset import Asset
 
@@ -7,7 +7,7 @@ from purview_mcp.domain.entities.asset import Asset
 class ScoredAsset:
     asset: Asset
     score: int
-    reasons: list[str] = field(default_factory=list)
+    explanation: str
 
 
 def score_asset(asset: Asset) -> ScoredAsset:
@@ -38,7 +38,8 @@ def score_asset(asset: Asset) -> ScoredAsset:
         score += 1
         reasons.append(f"{len(asset.classification)} classification(s)")
 
-    return ScoredAsset(asset=asset, score=score, reasons=reasons)
+    explanation = ", ".join(reasons) if reasons else "no governance signals"
+    return ScoredAsset(asset=asset, score=score, explanation=explanation)
 
 
 def rank_assets(assets: list[Asset]) -> list[ScoredAsset]:

@@ -1,3 +1,4 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,6 +22,13 @@ class Settings(BaseSettings):
     otel_enabled: bool = False
     otel_exporter_otlp_endpoint: str | None = None
     request_timeout_seconds: int = 30
+
+    @field_validator("purview_account_name")
+    @classmethod
+    def _account_name_not_empty(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("purview_account_name must not be empty or whitespace")
+        return v.strip()
 
     @property
     def purview_endpoint(self) -> str:
