@@ -58,6 +58,47 @@ class BaseClient:
         ) as span:
             return await self._request_with_retries(method, path, url, headers, log, span, **kwargs)
 
+    def _should_retry(self, status_code: int, attempt: int, log: Any) -> bool:
+        """Return True (and log a warning) when the response warrants a retry."""
+        if status_code == 429 and attempt < _MAX_ATTEMPTS:
+            log.warning("purview.api.rate_limited", retry_in=_RETRY_DELAYS[attempt - 1])
+            return True
+        if status_code >= 500 and attempt < _MAX_ATTEMPTS:
+            log.warning(
+                "purview.api.server_error",
+                status=status_code,
+                retry_in=_RETRY_DELAYS[attempt - 1],
+            )
+            return True
+        return False
+
+    def _raise_for_status(self, response: httpx.Response, path: str, log: Any) -> None:
+        """Raise a domain exception for any non-retryable error response."""
+        if response.status_code == 429:
+            raise RateLimitError()
+        if response.status_code == 404:
+            raise AssetNotFoundError(path)
+        if response.status_code >= 500:
+            log.error(
+                "purview.api.upstream_error",
+                status=response.status_code,
+                body=response.text[:200],
+            )
+            raise PurviewAPIError(
+                f"Purview API returned {response.status_code}",
+                status_code=response.status_code,
+            )
+        if response.is_error:
+            log.warning(
+                "purview.api.client_error",
+                status=response.status_code,
+                body=response.text[:200],
+            )
+            raise PurviewAPIError(
+                f"Purview API returned {response.status_code}",
+                status_code=response.status_code,
+            )
+
     async def _request_with_retries(
         self,
         method: str,
@@ -77,46 +118,10 @@ class BaseClient:
                 span.set_attribute("http.status_code", response.status_code)
                 span.set_attribute("retry.attempts", attempt)
 
-                if response.status_code == 429:
-                    if attempt < _MAX_ATTEMPTS:
-                        next_delay = _RETRY_DELAYS[attempt - 1]
-                        log.warning("purview.api.rate_limited", retry_in=next_delay)
-                        continue
-                    raise RateLimitError()
+                if self._should_retry(response.status_code, attempt, log):
+                    continue
 
-                if response.status_code == 404:
-                    raise AssetNotFoundError(path)
-
-                if response.status_code >= 500:
-                    if attempt < _MAX_ATTEMPTS:
-                        next_delay = _RETRY_DELAYS[attempt - 1]
-                        log.warning(
-                            "purview.api.server_error",
-                            status=response.status_code,
-                            retry_in=next_delay,
-                        )
-                        continue
-                    log.error(
-                        "purview.api.upstream_error",
-                        status=response.status_code,
-                        body=response.text[:200],
-                    )
-                    raise PurviewAPIError(
-                        f"Purview API returned {response.status_code}",
-                        status_code=response.status_code,
-                    )
-
-                if response.is_error:
-                    log.warning(
-                        "purview.api.client_error",
-                        status=response.status_code,
-                        body=response.text[:200],
-                    )
-                    raise PurviewAPIError(
-                        f"Purview API returned {response.status_code}",
-                        status_code=response.status_code,
-                    )
-
+                self._raise_for_status(response, path, log)
                 return response.json()
 
             except (httpx.TimeoutException, httpx.TransportError) as exc:
