@@ -1,7 +1,7 @@
 from typing import Any
 
 from purview_mcp.domain.entities.asset import Asset, AssetOwner, DataQualityMetric
-from purview_mcp.domain.exceptions import PurviewAPIError
+from purview_mcp.domain.entities.exceptions import PurviewAPIError
 from purview_mcp.domain.repositories.interfaces import CatalogRepositoryInterface
 from purview_mcp.infrastructure.services.datamap_client import DataMapClient
 

@@ -6,7 +6,11 @@ import httpx
 import structlog
 from opentelemetry import trace
 
-from purview_mcp.domain.exceptions import AssetNotFoundError, PurviewAPIError, RateLimitError
+from purview_mcp.domain.entities.exceptions import (
+    AssetNotFoundError,
+    PurviewAPIError,
+    RateLimitError,
+)
 from purview_mcp.infrastructure.services.azure_credential import PurviewCredentialProvider
 
 logger = structlog.get_logger(__name__)
@@ -58,6 +62,13 @@ class BaseClient:
         ) as span:
             return await self._request_with_retries(method, path, url, headers, log, span, **kwargs)
 
+    def _retry_or_raise_rate_limit(self, attempt: int, log: Any) -> None:
+        """Return normally to signal retry; raise RateLimitError when retries are exhausted."""
+        if attempt < _MAX_ATTEMPTS:
+            log.warning("purview.api.rate_limited", retry_in=_RETRY_DELAYS[attempt - 1])
+            return
+        raise RateLimitError()
+
     async def _request_with_retries(
         self,
         method: str,
@@ -78,11 +89,8 @@ class BaseClient:
                 span.set_attribute("retry.attempts", attempt)
 
                 if response.status_code == 429:
-                    if attempt < _MAX_ATTEMPTS:
-                        next_delay = _RETRY_DELAYS[attempt - 1]
-                        log.warning("purview.api.rate_limited", retry_in=next_delay)
-                        continue
-                    raise RateLimitError()
+                    self._retry_or_raise_rate_limit(attempt, log)
+                    continue
 
                 if response.status_code == 404:
                     raise AssetNotFoundError(path)

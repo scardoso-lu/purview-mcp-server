@@ -4,7 +4,7 @@ import functools
 from collections.abc import Callable, Coroutine
 from typing import Any
 
-from purview_mcp.domain.exceptions import (
+from purview_mcp.domain.entities.exceptions import (
     AssetNotFoundError,
     PurviewAPIError,
     PurviewError,
